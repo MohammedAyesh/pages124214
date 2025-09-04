@@ -195,22 +195,26 @@
                 isTransitioning = true;
                 
                 const nextProduct = productData[index];
-                
-                // Animate out
-                const fadeOutSpeed = 0.05;
+                const fadeSpeed = 0.05;
                 const spinSpeed = 0.2;
-                while (mainProductGroup.children.length > 0 && mainProductGroup.children[0].material.opacity > 0) {
-                    mainProductGroup.rotation.y += spinSpeed;
-                    setOpacity(mainProductGroup, mainProductGroup.children[0].material.opacity - fadeOutSpeed);
-                    setOpacity(surroundingGroup, surroundingGroup.children[0].material.opacity - fadeOutSpeed);
-                    await new Promise(r => setTimeout(r, 16));
+
+                // Animate out existing models, if any
+                if (mainProductGroup.children.length > 0) {
+                    let opacity = 1.0;
+                    while (opacity > 0) {
+                        opacity -= fadeSpeed;
+                        mainProductGroup.rotation.y += spinSpeed;
+                        setOpacity(mainProductGroup, Math.max(0, opacity));
+                        setOpacity(surroundingGroup, Math.max(0, opacity));
+                        await new Promise(r => setTimeout(r, 16));
+                    }
                 }
                 
-                // Clear old objects
+                // Clear old objects from the scene
                 while (mainProductGroup.children.length > 0) mainProductGroup.remove(mainProductGroup.children[0]);
                 while (surroundingGroup.children.length > 0) surroundingGroup.remove(surroundingGroup.children[0]);
                 
-                // Update UI
+                // Update UI text
                 const bgText = document.getElementById('background-text');
                 bgText.style.opacity = '0';
                 await new Promise(r => setTimeout(r, 200));
@@ -218,7 +222,7 @@
                 bgText.style.color = nextProduct.color;
                 bgText.style.opacity = '1';
 
-                // Load and add new objects
+                // Load and prepare new objects
                 const mainModel = await loadModel(nextProduct.mainModel);
                 mainModel.scale.set(1.5, 1.5, 1.5);
                 mainModel.position.y = -1.5;
@@ -235,11 +239,13 @@
                 }
                 setOpacity(surroundingGroup, 0);
 
-                // Animate in
-                while (mainProductGroup.children.length > 0 && mainProductGroup.children[0].material.opacity < 1) {
+                // Animate in new models
+                let opacity = 0.0;
+                while (opacity < 1) {
+                    opacity += fadeSpeed;
                     mainProductGroup.rotation.y += spinSpeed;
-                    setOpacity(mainProductGroup, mainProductGroup.children[0].material.opacity + fadeOutSpeed);
-                    setOpacity(surroundingGroup, surroundingGroup.children[0].material.opacity + fadeOutSpeed);
+                    setOpacity(mainProductGroup, Math.min(1, opacity));
+                    setOpacity(surroundingGroup, Math.min(1, opacity));
                     await new Promise(r => setTimeout(r, 16));
                 }
 
@@ -287,4 +293,5 @@
     </script>
 </body>
 </html>
+
 
