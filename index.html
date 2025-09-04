@@ -200,6 +200,44 @@
                 const camera = new THREE.PerspectiveCamera(75, canvas.parentElement.offsetWidth / canvas.parentElement.offsetHeight, 0.1, 1000);
                 const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
                 renderer.setSize(canvas.parentElement.offsetWidth, canvas.parentElement.offsetHeight);
+                renderer.setPixelRatio(window.devicePixelRatio || 1);
+
+                // Helpers to size and frame the model so it is NOT tiny
+                const TARGET_HEIGHT = 4.0; // units in scene space
+
+                function refitCameraToObject(obj, offset = 1.2) {
+                    obj.updateWorldMatrix(true, true);
+                    const box = new THREE.Box3().setFromObject(obj);
+                    const size = box.getSize(new THREE.Vector3());
+                    const vFOV = THREE.MathUtils.degToRad(camera.fov);
+                    const hFOV = 2 * Math.atan(Math.tan(vFOV / 2) * camera.aspect);
+                    const distY = (size.y / 2) / Math.tan(vFOV / 2);
+                    const distX = (size.x / 2) / Math.tan(hFOV / 2);
+                    const distance = Math.max(distX, distY) * offset;
+
+                    camera.position.set(0, 0, distance);
+                    camera.near = Math.max(0.01, distance / 100);
+                    camera.far = distance * 100;
+                    camera.updateProjectionMatrix();
+                }
+
+                function fitAndCenter(obj) {
+                    obj.updateWorldMatrix(true, true);
+                    const box = new THREE.Box3().setFromObject(obj);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+
+                    // center the model at the origin
+                    obj.position.sub(center);
+
+                    // scale up to target height so it fills the canvas
+                    const height = size.y || 1;
+                    const factor = TARGET_HEIGHT / height;
+                    obj.scale.multiplyScalar(factor);
+
+                    // position camera to fully frame the object
+                    refitCameraToObject(obj, 1.25);
+                }
 
                 // Lighting
                 const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -215,11 +253,7 @@
                 
                 loader.load(modelUrl, (gltf) => {
                     bottleModel = gltf.scene;
-                    
-                    // Scale and position the model as needed
-                    bottleModel.scale.set(3.2, 3.2, 3.2);
-                    bottleModel.position.y = -0.6;
-
+                    fitAndCenter(bottleModel);
                     scene.add(bottleModel);
                 }, undefined, (error) => {
                     console.error('An error happened while loading the model:', error);
@@ -237,8 +271,7 @@
                     const bottleCap = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.2, 32), new THREE.MeshStandardMaterial({color: 0xcccccc}));
                     bottleCap.position.y = 2.15;
                     bottleGroup.add(bottleBody, bottleNeck, bottleCap);
-                    bottleGroup.scale.set(3.2, 3.2, 3.2);
-                    bottleGroup.position.y = -0.6;
+                    fitAndCenter(bottleGroup);
                     scene.add(bottleGroup);
                     bottleModel = bottleGroup; // Assign to the same variable
                 }
@@ -295,7 +328,7 @@
 
 
                 function animate() {
-                    requestAnimationFrame(animate);
+                    requestAnimationFrame(animate); 
                     
                     targetRotation += 0.002;
 
@@ -320,6 +353,7 @@
                     camera.aspect = width / height;
                     camera.updateProjectionMatrix();
                     renderer.setSize(width, height);
+                    if (bottleModel) refitCameraToObject(bottleModel, 1.25);
                 });
 
                 return { scene, camera, renderer };
