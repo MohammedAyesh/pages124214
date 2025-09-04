@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
@@ -157,6 +158,9 @@
             scene.add(ground);
 
             const loader = new THREE.GLTFLoader();
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+            loader.setDRACOLoader(dracoLoader);
             const loadedModels = {};
             let mainProductGroup = new THREE.Group();
             let surroundingGroup = new THREE.Group();
@@ -181,13 +185,27 @@
                         });
                         loadedModels[url] = model;
                         resolve(model.clone());
-                    }, undefined, () => {
-                         console.error(`Failed to load ${url}`);
+                    }, undefined, (err) => {
+                         console.error(`Failed to load ${url}`, err);
                          // Resolve with a fallback cube if loading fails
                          const fallback = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({color: 0xff0000}));
                          resolve(fallback);
                     });
                 });
+            }
+            function fitAndCenterObject(obj, targetHeight = 4) {
+                obj.updateWorldMatrix(true, true);
+                const box = new THREE.Box3().setFromObject(obj);
+                const size = box.getSize(new THREE.Vector3());
+                const center = box.getCenter(new THREE.Vector3());
+                // Center at origin
+                obj.position.sub(center);
+                // Scale to target height
+                const h = size.y || 1;
+                const factor = targetHeight / h;
+                obj.scale.multiplyScalar(factor);
+                // Lift slightly so it sits nicely above ground
+                obj.position.y += 0.2;
             }
             
             async function transitionTo(index) {
@@ -224,8 +242,7 @@
 
                 // Load and prepare new objects
                 const mainModel = await loadModel(nextProduct.mainModel);
-                mainModel.scale.set(1.5, 1.5, 1.5);
-                mainModel.position.y = -1.5;
+                fitAndCenterObject(mainModel, 4.5);
                 setOpacity(mainModel, 0);
                 mainProductGroup.add(mainModel);
 
