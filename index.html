@@ -82,7 +82,7 @@
             <div class="text-2xl font-bold tracking-wider"><a href="#">storemilk</a></div>
             <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
                 <a href="#" id="nav-products" class="hover:text-gray-900 transition-colors">Products</a>
-                <a href="#" class="hover:text-gray-900 transition-colors">About</a>
+                <a href="#" id="nav-about" class="hover:text-gray-900 transition-colors">About</a>
                 <a href="#" class="hover:text-gray-900 transition-colors">Partnership</a>
                 <a href="#" class="hover:text-gray-900 transition-colors">Contact</a>
             </nav>
@@ -97,7 +97,10 @@
     <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full bg-white z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
         <div class="flex justify-end p-6"><button id="close-mobile-menu"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
         <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
-            <a href="#" class="nav-link">Products</a><a href="#" class="nav-link">About</a><a href="#" class="nav-link">Partnership</a><a href="#" class="nav-link">Contact</a>
+            <a href="#" class="nav-link" id="mobile-products">Products</a>
+            <a href="#" class="nav-link" id="mobile-about">About</a>
+            <a href="#" class="nav-link">Partnership</a>
+            <a href="#" class="nav-link">Contact</a>
         </nav>
     </div>
 
@@ -144,6 +147,110 @@
             <!-- Catalog grid -->
             <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16"></div>
         </div>
+    </section>
+
+    <!-- About Page Overlay -->
+    <section id="about-page" class="hidden fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
+      <!-- Sticky header -->
+      <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
+          <button id="about-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+            Back
+          </button>
+          <h2 class="text-xl font-bold tracking-tight text-gray-900">About Qudra</h2>
+          <div class="w-10"></div>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-10">
+        <!-- Hero -->
+        <div class="grid md:grid-cols-2 gap-10 items-start">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">Qudra: power, done clean.</h1>
+            <p class="mt-4 text-gray-700 text-base md:text-lg">Qudra (قدرة) means <span class="font-semibold">ability / capacity</span>—the strength to get things done. That’s the whole point: a protein pudding that tastes great, keeps macros honest, and skips the junk.</p>
+            <div class="mt-6 flex flex-wrap gap-3 text-sm">
+              <span class="px-3 py-1 rounded-full bg-white border border-black/10">No added sugar</span>
+              <span class="px-3 py-1 rounded-full bg-white border border-black/10">~17g protein / cup</span>
+              <span class="px-3 py-1 rounded-full bg-white border border-black/10">190–250 kcal</span>
+              <span class="px-3 py-1 rounded-full bg-white border border-black/10">4–6g fat · 20–27g carbs</span>
+            </div>
+          </div>
+          <div class="bg-white/60 rounded-3xl border border-black/5 p-6">
+            <h3 class="text-lg font-bold text-gray-900">What we make</h3>
+            <ul class="mt-3 space-y-2 text-gray-700 text-sm">
+              <li>• Thick, spoonable puddings in flavors you actually want (Pistachio, Dark Chocolate, Lotus, Snickers, and more).</li>
+              <li>• Macros that are consistent across flavors, so picking a taste doesn’t wreck your plan.</li>
+              <li>• Built for daily use: gym days, busy days, and everything in between.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pillars -->
+        <div class="mt-12 grid md:grid-cols-3 gap-6">
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
+            <h4 class="font-bold text-gray-900">Taste first</h4>
+            <p class="mt-2 text-sm text-gray-700">If it doesn’t taste good, you won’t eat it. We build flavor and texture before anything else.</p>
+          </div>
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
+            <h4 class="font-bold text-gray-900">Straight macros</h4>
+            <p class="mt-2 text-sm text-gray-700">Clear labels. Real serving sizes. No games. Check the cup—what you see is what you get.</p>
+          </div>
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
+            <h4 class="font-bold text-gray-900">Clean standards</h4>
+            <p class="mt-2 text-sm text-gray-700">No added sugar. Quality ingredients. Made in controlled kitchens with cold-chain handling.</p>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="mt-12 grid md:grid-cols-2 gap-8">
+          <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
+            <h4 class="font-bold text-gray-900">Ingredients & allergens</h4>
+            <ul class="mt-3 space-y-2 text-sm text-gray-700">
+              <li>• Dairy-based recipes; some flavors may include nuts or biscuits.</li>
+              <li>• Contains milk. Nut flavors contain tree nuts. Some flavors may contain gluten (e.g., biscuit-based).</li>
+              <li>• Always read the flavor label for the exact ingredient list.</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
+            <h4 class="font-bold text-gray-900">Storage & handling</h4>
+            <ul class="mt-3 space-y-2 text-sm text-gray-700">
+              <li>• Keep refrigerated (0–5°C / 32–41°F). Do not freeze.</li>
+              <li>• Best enjoyed chilled. Check the date on the lid for freshness.</li>
+              <li>• Transport in a cooler when you’re on the move.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="mt-12">
+          <h3 class="text-lg font-bold text-gray-900">FAQ</h3>
+          <div class="mt-4 grid md:grid-cols-2 gap-6 text-sm text-gray-700">
+            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
+              <p class="font-semibold">Is there added sugar?</p>
+              <p class="mt-1">No added sugar. Sweetness comes from the recipe ingredients. Always check your cup’s label.</p>
+            </div>
+            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
+              <p class="font-semibold">Is it halal?</p>
+              <p class="mt-1">We source halal‑friendly ingredients and avoid alcohol‑based flavor carriers. For official certification status, see the label or contact us.</p>
+            </div>
+            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
+              <p class="font-semibold">When should I eat it?</p>
+              <p class="mt-1">Anytime you need protein: post‑workout, breakfast, late night. It’s built for daily use.</p>
+            </div>
+            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
+              <p class="font-semibold">What’s the shelf life?</p>
+              <p class="mt-1">Varies by flavor and batch. Always follow the date on the lid and keep it cold.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-12 flex items-center gap-3">
+          <button id="about-shop-btn" class="px-6 py-3 rounded-full bg-black text-white font-semibold hover:bg-black/90">Shop Products</button>
+          <a href="#contact" class="text-sm text-gray-700 hover:text-gray-900">Questions? Contact us</a>
+        </div>
+      </div>
     </section>
     
     <script>
@@ -238,6 +345,28 @@
         }
         productsOpeners.forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); openProducts(); }));
         productsClose?.addEventListener('click', closeProducts);
+
+        // About page toggling
+        const aboutPage = document.getElementById('about-page');
+        const aboutOpeners = [document.getElementById('nav-about'), document.getElementById('mobile-about')].filter(Boolean);
+        const aboutClose = document.getElementById('about-close');
+        const aboutShopBtn = document.getElementById('about-shop-btn');
+        function openAbout() {
+          isTransitioning = true; // pause hero spin subtly
+          aboutPage.classList.remove('hidden');
+        }
+        function closeAbout() {
+          aboutPage.classList.add('hidden');
+          isTransitioning = false;
+        }
+        aboutOpeners.forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); openAbout(); }));
+        aboutClose?.addEventListener('click', closeAbout);
+        aboutShopBtn?.addEventListener('click', () => {
+          closeAbout();
+          // Open products overlay after closing about
+          const productsLink = document.getElementById('nav-products');
+          productsLink?.dispatchEvent(new Event('click'));
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             const productData = [
