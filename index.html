@@ -208,31 +208,26 @@
                 directionalLight.position.set(5, 10, 7.5);
                 scene.add(directionalLight);
 
-                // Materials
-                const nutMaterial = new THREE.MeshStandardMaterial({ color: nutColor, roughness: 0.6, metalness: 0.2 });
-
                 // --- 3D MODEL LOADING ---
                 let bottleModel;
                 const loader = new THREE.GLTFLoader();
-                // Replace this URL with the path to your own 3D model
-                // Make sure your model file is in the same folder as this HTML file!
-                const modelUrl = 'my_bottle.glb'; // <-- CHANGED THIS LINE. RENAME 'my_bottle.glb' TO YOUR FILE'S NAME
+                const modelUrl = 'AnyConv.com__tea-cup.glb';
                 
                 loader.load(modelUrl, (gltf) => {
                     bottleModel = gltf.scene;
                     
                     // Scale and position the model as needed
-                    bottleModel.scale.set(5, 5, 5);
+                    bottleModel.scale.set(1.5, 1.5, 1.5);
                     bottleModel.position.y = -1.5;
 
                     scene.add(bottleModel);
                 }, undefined, (error) => {
                     console.error('An error happened while loading the model:', error);
-                    // As a fallback, create the procedural bottle if the model fails to load
+                    // As a fallback, create a procedural bottle if the model fails to load
                     createProceduralBottle();
                 });
 
-                // This function creates the old bottle as a fallback
+                // This function creates a simple bottle as a fallback
                 function createProceduralBottle() {
                     const bottleMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.1 });
                     const bottleGroup = new THREE.Group();
@@ -246,19 +241,44 @@
                     bottleModel = bottleGroup; // Assign to the same variable
                 }
 
-
-                // Nuts Geometry
+                // --- Nuts Geometry Loading ---
                 const nuts = [];
-                for (let i = 0; i < 10; i++) {
-                    const nut = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), nutMaterial);
-                    nut.position.x = (Math.random() - 0.5) * 5;
-                    nut.position.y = (Math.random() - 0.5) * 4;
-                    nut.position.z = (Math.random() - 0.5) * 5;
-                    // Store original position for floating effect
-                    nut.originalY = nut.position.y;
-                    scene.add(nut);
-                    nuts.push(nut);
-                }
+                const nutLoader = new THREE.GLTFLoader();
+
+                nutLoader.load('walnuts.glb', (gltf) => {
+                    const walnutTemplate = gltf.scene;
+                    walnutTemplate.traverse((child) => {
+                        if (child.isMesh) {
+                           // This allows us to change the color of the loaded model
+                           child.material = new THREE.MeshStandardMaterial({ color: nutColor });
+                        }
+                    });
+
+                    for (let i = 0; i < 10; i++) {
+                        const nut = walnutTemplate.clone();
+                        nut.scale.set(0.3, 0.3, 0.3); // Adjust scale to be appropriate
+
+                        nut.position.x = (Math.random() - 0.5) * 6;
+                        nut.position.y = (Math.random() - 0.5) * 5;
+                        nut.position.z = (Math.random() - 0.5) * 6;
+                        nut.originalY = nut.position.y;
+                        scene.add(nut);
+                        nuts.push(nut);
+                    }
+                }, undefined, (error) => {
+                    console.error('An error happened loading walnuts.glb:', error);
+                    // Fallback to spheres if the walnut model fails
+                    const nutMaterial = new THREE.MeshStandardMaterial({ color: nutColor, roughness: 0.6, metalness: 0.2 });
+                    for (let i = 0; i < 10; i++) {
+                        const nut = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), nutMaterial);
+                        nut.position.x = (Math.random() - 0.5) * 5;
+                        nut.position.y = (Math.random() - 0.5) * 4;
+                        nut.position.z = (Math.random() - 0.5) * 5;
+                        nut.originalY = nut.position.y;
+                        scene.add(nut);
+                        nuts.push(nut);
+                    }
+                });
 
                 camera.position.z = 5;
 
@@ -268,7 +288,6 @@
 
                 canvas.parentElement.addEventListener('mousemove', (event) => {
                     const rect = canvas.parentElement.getBoundingClientRect();
-                    // Normalize mouse position from -1 to 1
                     mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
                 }, false);
 
@@ -276,16 +295,11 @@
                 function animate() {
                     requestAnimationFrame(animate);
                     
-                    // Add a subtle, constant rotation
                     targetRotation += 0.002;
 
-                    // Check if the bottleModel has been loaded before trying to rotate it
                     if (bottleModel) {
-                        // Make the bottle interact with mouse movement
-                        // We'll smoothly interpolate the bottle's rotation towards the target rotation (influenced by mouse)
                         bottleModel.rotation.y = THREE.MathUtils.lerp(bottleModel.rotation.y, mouseX * 0.5 + targetRotation, 0.05);
                     }
-
 
                     time += 0.01;
                     nuts.forEach(nut => {
@@ -318,13 +332,10 @@
                     let transformStyle = '';
 
                     if (isCurrent) {
-                        // Move current slide out
                         transformStyle = slideIndex > currentSlide ? 'translateX(-100%)' : 'translateX(100%)';
                     } else if (isTarget) {
-                        // Move new slide in
                         transformStyle = 'translateX(0)';
                     } else {
-                         // Position other slides off-screen
                         transformStyle = 'translateX(100%)';
                     }
 
@@ -336,7 +347,6 @@
                 resetInterval();
             };
             
-            // Set initial positions for non-active slides
             const initializeSlides = () => {
                 slides.forEach((slide, index) => {
                     if (index !== currentSlide) {
@@ -360,7 +370,7 @@
             };
             
             const startInterval = () => {
-                 slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+                 slideInterval = setInterval(nextSlide, 5000);
             }
 
             const resetInterval = () => {
@@ -396,5 +406,4 @@
     </script>
 </body>
 </html>
-
 
