@@ -34,7 +34,7 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            height: 400px; /* Give canvas a fixed height */
+            height: 560px; /* Give canvas a fixed height */
         }
         .product-image {
             transition: transform 0.5s ease-out;
@@ -217,8 +217,8 @@
                     bottleModel = gltf.scene;
                     
                     // Scale and position the model as needed
-                    bottleModel.scale.set(1.5, 1.5, 1.5);
-                    bottleModel.position.y = -1.5;
+                    bottleModel.scale.set(3.2, 3.2, 3.2);
+                    bottleModel.position.y = -0.6;
 
                     scene.add(bottleModel);
                 }, undefined, (error) => {
@@ -237,6 +237,8 @@
                     const bottleCap = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.2, 32), new THREE.MeshStandardMaterial({color: 0xcccccc}));
                     bottleCap.position.y = 2.15;
                     bottleGroup.add(bottleBody, bottleNeck, bottleCap);
+                    bottleGroup.scale.set(3.2, 3.2, 3.2);
+                    bottleGroup.position.y = -0.6;
                     scene.add(bottleGroup);
                     bottleModel = bottleGroup; // Assign to the same variable
                 }
@@ -298,7 +300,7 @@
                     targetRotation += 0.002;
 
                     if (bottleModel) {
-                        bottleModel.rotation.y = THREE.MathUtils.lerp(bottleModel.rotation.y, mouseX * 0.5 + targetRotation, 0.05);
+                        bottleModel.rotation.y += 0.01; // auto-rotate
                     }
 
                     time += 0.01;
