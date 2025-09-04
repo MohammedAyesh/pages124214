@@ -3,25 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nut Milk Showcase</title>
+    <title>Product Showcase</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Add the GLTF Loader script -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0ebe5; /* A soft, natural beige background */
-            overflow-x: hidden;
-        }
-        .carousel-slide {
-            transition: transform 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95), opacity 0.7s ease-in-out;
+            background-color: #f0ebe5;
+            overflow: hidden; /* Prevent scrollbars during transitions */
         }
         .background-text {
             font-size: 18vw;
             font-weight: 900;
-            color: #e0d9d1;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -29,18 +24,15 @@
             white-space: nowrap;
             user-select: none;
             z-index: 1;
+            transition: color 0.7s ease-in-out, opacity 0.5s ease-in-out;
         }
         .product-image-container {
-            position: relative;
-            z-index: 10;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 560px; /* Give canvas a fixed height */
-        }
-        .product-image {
-            transition: transform 0.5s ease-out;
-        }
-        .carousel-slide.active .product-image {
-            transform: scale(1.05);
+            height: 100%;
+            z-index: 10;
         }
         .nav-arrow {
             position: absolute;
@@ -54,7 +46,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 15;
+            z-index: 20;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s, transform 0.3s;
         }
@@ -62,22 +54,22 @@
             background-color: white;
             transform: translateY(-50%) scale(1.1);
         }
-        .nav-arrow.left {
-            left: 25%;
+        .nav-arrow.left { left: 15%; }
+        .nav-arrow.right { right: 15%; }
+        
+        .ui-elements {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            text-align: center;
         }
-        .nav-arrow.right {
-            right: 25%;
-        }
+
         @media (max-width: 768px) {
-            .background-text {
-                font-size: 25vw;
-            }
-            .nav-arrow.left {
-                left: 10%;
-            }
-            .nav-arrow.right {
-                right: 10%;
-            }
+            .background-text { font-size: 25vw; }
+            .nav-arrow.left { left: 5%; }
+            .nav-arrow.right { right: 5%; }
         }
     </style>
 </head>
@@ -86,9 +78,7 @@
     <!-- Header Navigation -->
     <header class="absolute top-0 left-0 right-0 z-20 px-4 sm:px-8 md:px-16 py-6">
         <div class="container mx-auto flex justify-between items-center">
-            <div class="text-2xl font-bold tracking-wider">
-                <a href="#">storemilk</a>
-            </div>
+            <div class="text-2xl font-bold tracking-wider"><a href="#">storemilk</a></div>
             <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
                 <a href="#" class="hover:text-gray-900 transition-colors">Products</a>
                 <a href="#" class="hover:text-gray-900 transition-colors">About</a>
@@ -96,348 +86,203 @@
                 <a href="#" class="hover:text-gray-900 transition-colors">Contact</a>
             </nav>
             <div class="flex items-center space-x-4">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                 <!-- Mobile Menu Button -->
-                 <button id="mobile-menu-button" class="md:hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
-                </button>
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                 <button id="mobile-menu-button" class="md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg></button>
             </div>
         </div>
     </header>
     
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full bg-white z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
-        <div class="flex justify-end p-6">
-            <button id="close-mobile-menu">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
+        <div class="flex justify-end p-6"><button id="close-mobile-menu"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
         <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
-            <a href="#" class="nav-link">Products</a>
-            <a href="#" class="nav-link">About</a>
-            <a href="#" class="nav-link">Partnership</a>
-            <a href="#" class="nav-link">Contact</a>
+            <a href="#" class="nav-link">Products</a><a href="#" class="nav-link">About</a><a href="#" class="nav-link">Partnership</a><a href="#" class="nav-link">Contact</a>
         </nav>
     </div>
 
-
-    <!-- Main Content: Carousel -->
-    <main id="product-carousel" class="relative w-full h-screen flex items-center justify-center overflow-hidden">
+    <!-- Main Content Area -->
+    <main class="relative w-full h-screen">
+        <h1 id="background-text" class="background-text"></h1>
+        <div id="product-canvas-container" class="product-image-container"></div>
         
-        <!-- Slide 1: Almond -->
-        <div class="carousel-slide active absolute w-full h-full flex flex-col items-center justify-center">
-            <h1 class="background-text">Almond</h1>
-            <div class="product-image-container text-center">
-                <canvas id="canvas-almond"></canvas>
-            </div>
-            <button class="mt-8 bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all z-10">
-                Shop Now
-            </button>
-        </div>
-
-        <!-- Slide 2: Hazelnut -->
-        <div class="carousel-slide absolute w-full h-full flex flex-col items-center justify-center" style="transform: translateX(100%); opacity: 0;">
-            <h1 class="background-text">Hazelnut</h1>
-            <div class="product-image-container text-center">
-                <canvas id="canvas-hazelnut"></canvas>
-            </div>
-            <button class="mt-8 bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all z-10">
-                Shop Now
-            </button>
-        </div>
-        
-        <!-- Slide 3: Walnut -->
-        <div class="carousel-slide absolute w-full h-full flex flex-col items-center justify-center" style="transform: translateX(100%); opacity: 0;">
-            <h1 class="background-text">Walnut</h1>
-            <div class="product-image-container text-center">
-                <canvas id="canvas-walnut"></canvas>
-            </div>
-            <button class="mt-8 bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all z-10">
-                Shop Now
-            </button>
+        <div class="ui-elements">
+            <button class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
         </div>
 
         <!-- Navigation Arrows -->
-        <div id="prev-btn" class="nav-arrow left">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-            </svg>
-        </div>
-        <div id="next-btn" class="nav-arrow right">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-        </div>
-
+        <div id="prev-btn" class="nav-arrow left"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></div>
+        <div id="next-btn" class="nav-arrow right"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg></div>
     </main>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const slides = document.querySelectorAll('.carousel-slide');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const navLinks = mobileMenu.querySelectorAll('.nav-link');
+            const productData = [
+                { name: 'Almond', mainModel: 'AnyConv.com__tea-cup.glb', surroundingModel: 'walnuts.glb', color: '#e0d9d1' },
+                { name: 'Lotus', mainModel: 'lotus.glb', surroundingModel: 'petals.glb', color: '#d1e0d9' },
+                { name: 'Hazelnut', mainModel: 'AnyConv.com__tea-cup.glb', surroundingModel: 'walnuts.glb', color: '#e0d1d1' },
+                { name: 'Walnut', mainModel: 'AnyConv.com__tea-cup.glb', surroundingModel: 'walnuts.glb', color: '#d9e0d1' },
+            ];
 
-            let currentSlide = 0;
-            let slideInterval;
-            let scenes = [];
+            let currentProductIndex = 0;
+            let isTransitioning = false;
 
-            // --- THREE.JS SCENE SETUP ---
-            function createScene(canvasId, nutColor) {
-                const canvas = document.getElementById(canvasId);
-                if (!canvas) return null;
-
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(75, canvas.parentElement.offsetWidth / canvas.parentElement.offsetHeight, 0.1, 1000);
-                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-                renderer.setSize(canvas.parentElement.offsetWidth, canvas.parentElement.offsetHeight);
-                renderer.setPixelRatio(window.devicePixelRatio || 1);
-
-                // Helpers to size and frame the model so it is NOT tiny
-                const TARGET_HEIGHT = 4.0; // units in scene space
-
-                function refitCameraToObject(obj, offset = 1.2) {
-                    obj.updateWorldMatrix(true, true);
-                    const box = new THREE.Box3().setFromObject(obj);
-                    const size = box.getSize(new THREE.Vector3());
-                    const vFOV = THREE.MathUtils.degToRad(camera.fov);
-                    const hFOV = 2 * Math.atan(Math.tan(vFOV / 2) * camera.aspect);
-                    const distY = (size.y / 2) / Math.tan(vFOV / 2);
-                    const distX = (size.x / 2) / Math.tan(hFOV / 2);
-                    const distance = Math.max(distX, distY) * offset;
-
-                    camera.position.set(0, 0, distance);
-                    camera.near = Math.max(0.01, distance / 100);
-                    camera.far = distance * 100;
-                    camera.updateProjectionMatrix();
-                }
-
-                function fitAndCenter(obj) {
-                    obj.updateWorldMatrix(true, true);
-                    const box = new THREE.Box3().setFromObject(obj);
-                    const size = box.getSize(new THREE.Vector3());
-                    const center = box.getCenter(new THREE.Vector3());
-
-                    // center the model at the origin
-                    obj.position.sub(center);
-
-                    // scale up to target height so it fills the canvas
-                    const height = size.y || 1;
-                    const factor = TARGET_HEIGHT / height;
-                    obj.scale.multiplyScalar(factor);
-
-                    // position camera to fully frame the object
-                    refitCameraToObject(obj, 1.25);
-                }
-
-                // Lighting
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-                scene.add(ambientLight);
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-                directionalLight.position.set(5, 10, 7.5);
-                scene.add(directionalLight);
-
-                // --- 3D MODEL LOADING ---
-                let bottleModel;
-                const loader = new THREE.GLTFLoader();
-                const modelUrl = 'AnyConv.com__tea-cup.glb';
-                
-                loader.load(modelUrl, (gltf) => {
-                    bottleModel = gltf.scene;
-                    fitAndCenter(bottleModel);
-                    scene.add(bottleModel);
-                }, undefined, (error) => {
-                    console.error('An error happened while loading the model:', error);
-                    // As a fallback, create a procedural bottle if the model fails to load
-                    createProceduralBottle();
-                });
-
-                // This function creates a simple bottle as a fallback
-                function createProceduralBottle() {
-                    const bottleMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.1 });
-                    const bottleGroup = new THREE.Group();
-                    const bottleBody = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.9, 2.5, 32), bottleMaterial);
-                    const bottleNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 0.8, 32), bottleMaterial);
-                    bottleNeck.position.y = 1.65;
-                    const bottleCap = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.2, 32), new THREE.MeshStandardMaterial({color: 0xcccccc}));
-                    bottleCap.position.y = 2.15;
-                    bottleGroup.add(bottleBody, bottleNeck, bottleCap);
-                    fitAndCenter(bottleGroup);
-                    scene.add(bottleGroup);
-                    bottleModel = bottleGroup; // Assign to the same variable
-                }
-
-                // --- Nuts Geometry Loading ---
-                const nuts = [];
-                const nutLoader = new THREE.GLTFLoader();
-
-                nutLoader.load('walnuts.glb', (gltf) => {
-                    const walnutTemplate = gltf.scene;
-                    walnutTemplate.traverse((child) => {
-                        if (child.isMesh) {
-                           // This allows us to change the color of the loaded model
-                           child.material = new THREE.MeshStandardMaterial({ color: nutColor });
-                        }
-                    });
-
-                    for (let i = 0; i < 10; i++) {
-                        const nut = walnutTemplate.clone();
-                        nut.scale.set(0.3, 0.3, 0.3); // Adjust scale to be appropriate
-
-                        nut.position.x = (Math.random() - 0.5) * 6;
-                        nut.position.y = (Math.random() - 0.5) * 5;
-                        nut.position.z = (Math.random() - 0.5) * 6;
-                        nut.originalY = nut.position.y;
-                        scene.add(nut);
-                        nuts.push(nut);
-                    }
-                }, undefined, (error) => {
-                    console.error('An error happened loading walnuts.glb:', error);
-                    // Fallback to spheres if the walnut model fails
-                    const nutMaterial = new THREE.MeshStandardMaterial({ color: nutColor, roughness: 0.6, metalness: 0.2 });
-                    for (let i = 0; i < 10; i++) {
-                        const nut = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), nutMaterial);
-                        nut.position.x = (Math.random() - 0.5) * 5;
-                        nut.position.y = (Math.random() - 0.5) * 4;
-                        nut.position.z = (Math.random() - 0.5) * 5;
-                        nut.originalY = nut.position.y;
-                        scene.add(nut);
-                        nuts.push(nut);
-                    }
-                });
-
-                camera.position.z = 5;
-
-                let mouseX = 0;
-                let targetRotation = 0;
-                let time = 0;
-
-                canvas.parentElement.addEventListener('mousemove', (event) => {
-                    const rect = canvas.parentElement.getBoundingClientRect();
-                    mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                }, false);
-
-
-                function animate() {
-                    requestAnimationFrame(animate); 
-                    
-                    targetRotation += 0.002;
-
-                    if (bottleModel) {
-                        bottleModel.rotation.y += 0.01; // auto-rotate
-                    }
-
-                    time += 0.01;
-                    nuts.forEach(nut => {
-                        nut.position.y = nut.originalY + Math.sin(time + nut.position.x) * 0.5;
-                        nut.rotation.x += 0.01;
-                        nut.rotation.y += 0.01;
-                    });
-
-                    renderer.render(scene, camera);
-                }
-                animate();
-                
-                window.addEventListener('resize', () => {
-                    const width = canvas.parentElement.offsetWidth;
-                    const height = canvas.parentElement.offsetHeight;
-                    camera.aspect = width / height;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(width, height);
-                    if (bottleModel) refitCameraToObject(bottleModel, 1.25);
-                });
-
-                return { scene, camera, renderer };
-            }
-
-
-            const goToSlide = (slideIndex) => {
-                slides.forEach((slide, index) => {
-                    slide.classList.remove('active');
-                    const isCurrent = index === currentSlide;
-                    const isTarget = index === slideIndex;
-                    let transformStyle = '';
-
-                    if (isCurrent) {
-                        transformStyle = slideIndex > currentSlide ? 'translateX(-100%)' : 'translateX(100%)';
-                    } else if (isTarget) {
-                        transformStyle = 'translateX(0)';
-                    } else {
-                        transformStyle = 'translateX(100%)';
-                    }
-
-                    slide.style.transform = transformStyle;
-                    slide.style.opacity = isTarget ? '1' : '0';
-                });
-                slides[slideIndex].classList.add('active');
-                currentSlide = slideIndex;
-                resetInterval();
-            };
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
             
-            const initializeSlides = () => {
-                slides.forEach((slide, index) => {
-                    if (index !== currentSlide) {
-                         slide.style.transform = 'translateX(100%)';
-                         slide.style.opacity = '0';
-                    } else {
-                         slide.style.transform = 'translateX(0)';
-                         slide.style.opacity = '1';
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true; // Enable shadows
+            document.getElementById('product-canvas-container').appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            directionalLight.castShadow = true; // Make light cast shadows
+            directionalLight.shadow.mapSize.width = 1024;
+            directionalLight.shadow.mapSize.height = 1024;
+            scene.add(directionalLight);
+
+            // Ground plane to receive shadows
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(20, 20),
+                new THREE.ShadowMaterial({ opacity: 0.3 })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            const loader = new THREE.GLTFLoader();
+            const loadedModels = {};
+            let mainProductGroup = new THREE.Group();
+            let surroundingGroup = new THREE.Group();
+            scene.add(mainProductGroup, surroundingGroup);
+
+            function setOpacity(obj, opacity) {
+                obj.traverse(child => {
+                    if (child.isMesh) {
+                        child.material.transparent = true;
+                        child.material.opacity = opacity;
                     }
                 });
             }
 
-            const nextSlide = () => {
-                const nextSlideIndex = (currentSlide + 1) % slides.length;
-                goToSlide(nextSlideIndex);
-            };
-
-            const prevSlide = () => {
-                const prevSlideIndex = (currentSlide - 1 + slides.length) % slides.length;
-                goToSlide(prevSlideIndex);
-            };
-            
-            const startInterval = () => {
-                 slideInterval = setInterval(nextSlide, 5000);
-            }
-
-            const resetInterval = () => {
-                clearInterval(slideInterval);
-                startInterval();
-            }
-
-            nextBtn.addEventListener('click', nextSlide);
-            prevBtn.addEventListener('click', prevSlide);
-
-            // Mobile Menu Logic
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.remove('-translate-x-full');
-            });
-
-            closeMobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.add('-translate-x-full');
-            });
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.add('-translate-x-full');
+            function loadModel(url) {
+                return new Promise((resolve, reject) => {
+                    if (loadedModels[url]) return resolve(loadedModels[url].clone());
+                    loader.load(url, (gltf) => {
+                        const model = gltf.scene;
+                        model.traverse(child => {
+                           if(child.isMesh) child.castShadow = true;
+                        });
+                        loadedModels[url] = model;
+                        resolve(model.clone());
+                    }, undefined, () => {
+                         console.error(`Failed to load ${url}`);
+                         // Resolve with a fallback cube if loading fails
+                         const fallback = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({color: 0xff0000}));
+                         resolve(fallback);
+                    });
                 });
+            }
+            
+            async function transitionTo(index) {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                
+                const nextProduct = productData[index];
+                
+                // Animate out
+                const fadeOutSpeed = 0.05;
+                const spinSpeed = 0.2;
+                while (mainProductGroup.children.length > 0 && mainProductGroup.children[0].material.opacity > 0) {
+                    mainProductGroup.rotation.y += spinSpeed;
+                    setOpacity(mainProductGroup, mainProductGroup.children[0].material.opacity - fadeOutSpeed);
+                    setOpacity(surroundingGroup, surroundingGroup.children[0].material.opacity - fadeOutSpeed);
+                    await new Promise(r => setTimeout(r, 16));
+                }
+                
+                // Clear old objects
+                while (mainProductGroup.children.length > 0) mainProductGroup.remove(mainProductGroup.children[0]);
+                while (surroundingGroup.children.length > 0) surroundingGroup.remove(surroundingGroup.children[0]);
+                
+                // Update UI
+                const bgText = document.getElementById('background-text');
+                bgText.style.opacity = '0';
+                await new Promise(r => setTimeout(r, 200));
+                bgText.textContent = nextProduct.name;
+                bgText.style.color = nextProduct.color;
+                bgText.style.opacity = '1';
+
+                // Load and add new objects
+                const mainModel = await loadModel(nextProduct.mainModel);
+                mainModel.scale.set(1.5, 1.5, 1.5);
+                mainModel.position.y = -1.5;
+                setOpacity(mainModel, 0);
+                mainProductGroup.add(mainModel);
+
+                const surroundingTemplate = await loadModel(nextProduct.surroundingModel);
+                 for (let i = 0; i < 10; i++) {
+                    const s_obj = surroundingTemplate.clone();
+                    s_obj.scale.set(0.2, 0.2, 0.2);
+                    s_obj.position.set( (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6 );
+                    s_obj.originalY = s_obj.position.y;
+                    surroundingGroup.add(s_obj);
+                }
+                setOpacity(surroundingGroup, 0);
+
+                // Animate in
+                while (mainProductGroup.children.length > 0 && mainProductGroup.children[0].material.opacity < 1) {
+                    mainProductGroup.rotation.y += spinSpeed;
+                    setOpacity(mainProductGroup, mainProductGroup.children[0].material.opacity + fadeOutSpeed);
+                    setOpacity(surroundingGroup, surroundingGroup.children[0].material.opacity + fadeOutSpeed);
+                    await new Promise(r => setTimeout(r, 16));
+                }
+
+                currentProductIndex = index;
+                isTransitioning = false;
+            }
+
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                if (!isTransitioning) {
+                   mainProductGroup.rotation.y += 0.005;
+                }
+
+                const time = Date.now() * 0.001;
+                surroundingGroup.children.forEach(child => {
+                    child.position.y = child.originalY + Math.sin(time + child.position.x) * 0.5;
+                    child.rotation.x += 0.01;
+                    child.rotation.y += 0.01;
+                });
+                
+                renderer.render(scene, camera);
+            }
+            
+            // Event Listeners
+            document.getElementById('next-btn').addEventListener('click', () => {
+                const nextIndex = (currentProductIndex + 1) % productData.length;
+                transitionTo(nextIndex);
+            });
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                const prevIndex = (currentProductIndex - 1 + productData.length) % productData.length;
+                transitionTo(prevIndex);
+            });
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            // Initialize
-            initializeSlides();
-            scenes.push(createScene('canvas-almond', 0x8B4513)); // Brown for almond
-            scenes.push(createScene('canvas-hazelnut', 0xD2691E)); // Chocolate for hazelnut
-            scenes.push(createScene('canvas-walnut', 0xA0522D)); // Sienna for walnut
-            startInterval();
+            // Initial Load
+            transitionTo(0);
+            animate();
         });
     </script>
 </body>
