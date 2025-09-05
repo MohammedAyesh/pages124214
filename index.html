@@ -351,7 +351,7 @@
       // Ground + scene offset
       const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.ShadowMaterial({opacity:0.3}));
       ground.rotation.x=-Math.PI/2;
-      const SCENE_Y_OFFSET=-0.2; // move everything down a lot
+      const SCENE_Y_OFFSET=-0.7; // move everything down a lot
       ground.position.y=SCENE_Y_OFFSET;
       ground.receiveShadow=true;
       scene.add(ground);
@@ -384,7 +384,7 @@
         });
       }
 
-      function fitAndCenterObject(obj, targetHeight=1){ // half size
+      function fitAndCenterObject(obj, targetHeight=0.5){ // half size
         obj.updateWorldMatrix(true,true);
         const box=new THREE.Box3().setFromObject(obj);
         const size=box.getSize(new THREE.Vector3());
