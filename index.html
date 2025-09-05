@@ -384,7 +384,7 @@
         });
       }
 
-      function fitAndCenterObject(obj, targetHeight=0){ // half size
+      function fitAndCenterObject(obj, targetHeight=1.6){ // half size (increase to make cup larger)
         obj.updateWorldMatrix(true,true);
         const box=new THREE.Box3().setFromObject(obj);
         const size=box.getSize(new THREE.Vector3());
@@ -396,7 +396,7 @@
         obj.position.y += -box2.min.y;
       }
 
-      function refitCameraToObject(obj, offset=0){
+      function refitCameraToObject(obj, offset=2.2){ // larger offset => camera backs up => cup appears farther
         obj.updateWorldMatrix(true,true);
         const box=new THREE.Box3().setFromObject(obj);
         const size=box.getSize(new THREE.Vector3());
@@ -451,7 +451,7 @@
         fitAndCenterObject(mainModel, 1.6);
         setOpacity(mainModel,0);
         mainProductGroup.add(mainModel);
-        refitCameraToObject(mainProductGroup, 1.3);
+        refitCameraToObject(mainProductGroup, 2.2);
 
         const surroundingTemplate=await loadModel(nextProduct.surroundingModel);
         for(let i=0;i<10;i++){
@@ -493,7 +493,7 @@
 
       document.getElementById('next-btn').addEventListener('click',()=>{ const i=(currentProductIndex+1)%productData.length; transitionTo(i); });
       document.getElementById('prev-btn').addEventListener('click',()=>{ const i=(currentProductIndex-1+productData.length)%productData.length; transitionTo(i); });
-      window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); if(mainProductGroup.children.length){ refitCameraToObject(mainProductGroup,1.3);} });
+      window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); if(mainProductGroup.children.length){ refitCameraToObject(mainProductGroup,2.2);} });
 
       // boot
       transitionTo(0);
