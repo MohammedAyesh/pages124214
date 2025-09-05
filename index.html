@@ -1,587 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Showcase</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0ebe5;
-            overflow: hidden; /* Prevent scrollbars during transitions */
-        }
-        .background-text {
-            font-size: 18vw;
-            font-weight: 900;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            white-space: nowrap;
-            user-select: none;
-            z-index: 1;
-            transition: color 0.7s ease-in-out, opacity 0.5s ease-in-out;
-        }
-        .product-image-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-        }
-        .nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 20;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .nav-arrow:hover {
-            background-color: white;
-            transform: translateY(-50%) scale(1.1);
-        }
-        .nav-arrow.left { left: 15%; }
-        .nav-arrow.right { right: 15%; }
-        
-        .ui-elements {
-            position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .background-text { font-size: 25vw; }
-            .nav-arrow.left { left: 5%; }
-            .nav-arrow.right { right: 5%; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background:#f0ebe5; overflow: hidden; }
+    .background-text {
+      font-size: 18vw; font-weight: 900; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%); white-space: nowrap; user-select: none;
+      z-index: 1; transition: color .7s ease-in-out, opacity .5s ease-in-out;
+    }
+    .product-image-container { position:absolute; inset:0; z-index:10; }
+    .nav-arrow {
+      position:absolute; top:50%; transform: translateY(-50%); background:rgba(255,255,255,.8);
+      border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:20; box-shadow:0 4px 10px rgba(0,0,0,.1); transition: background-color .3s, transform .3s;
+    }
+    .nav-arrow:hover { background:#fff; transform: translateY(-50%) scale(1.1); }
+    .nav-arrow.left { left:15%; } .nav-arrow.right { right:15%; }
+    .ui-elements { position:absolute; bottom:10%; left:50%; transform: translateX(-50%); z-index:20; text-align:center; }
+    @media (max-width:768px){ .background-text{ font-size:25vw } .nav-arrow.left{left:5%} .nav-arrow.right{right:5%} }
+  </style>
 </head>
 <body class="text-gray-800">
 
-    <!-- Header Navigation -->
-    <header class="absolute top-0 left-0 right-0 z-20 px-4 sm:px-8 md:px-16 py-6">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="text-2xl font-bold tracking-wider"><a href="#">storemilk</a></div>
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
-                <a href="#" id="nav-products" class="hover:text-gray-900 transition-colors">Products</a>
-                <a href="#" id="nav-about" class="hover:text-gray-900 transition-colors">About</a>
-                <a href="#" class="hover:text-gray-900 transition-colors">Partnership</a>
-                <a href="#" class="hover:text-gray-900 transition-colors">Contact</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                 <button id="mobile-menu-button" class="md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg></button>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full bg-white z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
-        <div class="flex justify-end p-6"><button id="close-mobile-menu"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
-        <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
-            <a href="#" class="nav-link" id="mobile-products">Products</a>
-            <a href="#" class="nav-link" id="mobile-about">About</a>
-            <a href="#" class="nav-link">Partnership</a>
-            <a href="#" class="nav-link">Contact</a>
-        </nav>
+  <!-- Header -->
+  <header class="absolute top-0 left-0 right-0 z-20 px-4 sm:px-8 md:px-16 py-6">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="text-2xl font-bold tracking-wider"><a href="#">storemilk</a></div>
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+        <a href="#" id="nav-products" class="hover:text-gray-900 transition-colors">Products</a>
+        <a href="#" id="nav-about" class="hover:text-gray-900 transition-colors">About</a>
+        <a href="#" class="hover:text-gray-900 transition-colors">Partnership</a>
+        <a href="#" id="nav-contact" class="hover:text-gray-900 transition-colors">Contact</a>
+      </nav>
+      <div class="flex items-center space-x-4">
+        <!-- cart removed -->
+        <button id="mobile-menu-button" class="md:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full bg-white z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+    <div class="flex justify-end p-6">
+      <button id="close-mobile-menu">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
+      <a href="#" class="nav-link" id="mobile-products">Products</a>
+      <a href="#" class="nav-link" id="mobile-about">About</a>
+      <a href="#" class="nav-link">Partnership</a>
+      <a href="#" class="nav-link" id="mobile-contact">Contact</a>
+    </nav>
+  </div>
+
+  <!-- Main -->
+  <main class="relative w-full h-screen">
+    <h1 id="background-text" class="background-text"></h1>
+    <div id="product-canvas-container" class="product-image-container"></div>
+
+    <div class="ui-elements">
+      <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
     </div>
 
-    <!-- Main Content Area -->
-    <main class="relative w-full h-screen">
-        <h1 id="background-text" class="background-text"></h1>
-        <div id="product-canvas-container" class="product-image-container"></div>
-        
-        <div class="ui-elements">
-            <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
-        </div>
+    <div id="prev-btn" class="nav-arrow left">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+    </div>
+    <div id="next-btn" class="nav-arrow right">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+    </div>
+  </main>
 
-        <!-- Navigation Arrows -->
-        <div id="prev-btn" class="nav-arrow left"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></div>
-        <div id="next-btn" class="nav-arrow right"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg></div>
-    </main>
+  <!-- Products Overlay -->
+  <section id="products-page" class="hidden fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
+    <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
+        <button id="products-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          Back
+        </button>
+        <h2 class="text-xl font-bold tracking-tight text-gray-900">Products</h2>
+        <div class="w-10"></div>
+      </div>
+    </div>
 
-    <!-- Products Page Overlay -->
-    <section id="products-page" class="hidden fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-        <!-- Sticky header inside products page -->
-        <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5">
-            <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
-                <button id="products-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
-                    Back
-                </button>
-                <h2 class="text-xl font-bold tracking-tight text-gray-900">Products</h2>
-                <div class="w-10"></div>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-8">
-            <!-- Filters/Search -->
-            <div class="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <input id="catalog-search" type="text" placeholder="Search flavors…" class="w-full sm:w-96 rounded-full border border-black/10 bg-white/80 backdrop-blur px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10" />
-                <div class="flex flex-wrap gap-2 text-sm">
-                    <button data-filter="all" class="filter-chip px-3 py-1 rounded-full bg-black/80 text-white">All</button>
-                    <button data-filter="lowfat" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">Low Fat ≤5g</button>
-                    <button data-filter="≤200kcal" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">≤200 kcal</button>
-                    <button data-filter="nosugar" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">No added sugar</button>
-                </div>
-            </div>
-
-            <!-- Catalog grid -->
-            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16"></div>
-        </div>
-    </section>
-
-    <!-- About Page Overlay -->
-    <section id="about-page" class="hidden fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-      <!-- Sticky header -->
-      <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5">
-        <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
-          <button id="about-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
-            Back
-          </button>
-          <h2 class="text-xl font-bold tracking-tight text-gray-900">About Qudra</h2>
-          <div class="w-10"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-8">
+      <div class="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <input id="catalog-search" type="text" placeholder="Search flavors…" class="w-full sm:w-96 rounded-full border border-black/10 bg-white/80 backdrop-blur px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"/>
+        <div class="flex flex-wrap gap-2 text-sm">
+          <button data-filter="all" class="filter-chip px-3 py-1 rounded-full bg-black/80 text-white">All</button>
+          <button data-filter="lowfat" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">Low Fat ≤5g</button>
+          <button data-filter="≤200kcal" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">≤200 kcal</button>
+          <button data-filter="nosugar" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">No added sugar</button>
         </div>
       </div>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-10">
-        <!-- Hero -->
-        <div class="grid md:grid-cols-2 gap-10 items-start">
-          <div>
-            <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">Qudra: power, done clean.</h1>
-            <p class="mt-4 text-gray-700 text-base md:text-lg">Qudra (قدرة) means <span class="font-semibold">ability / capacity</span>—the strength to get things done. That’s the whole point: a protein pudding that tastes great, keeps macros honest, and skips the junk.</p>
-            <div class="mt-6 flex flex-wrap gap-3 text-sm">
-              <span class="px-3 py-1 rounded-full bg-white border border-black/10">No added sugar</span>
-              <span class="px-3 py-1 rounded-full bg-white border border-black/10">~17g protein / cup</span>
-              <span class="px-3 py-1 rounded-full bg-white border border-black/10">190–250 kcal</span>
-              <span class="px-3 py-1 rounded-full bg-white border border-black/10">4–6g fat · 20–27g carbs</span>
-            </div>
-          </div>
-          <div class="bg-white/60 rounded-3xl border border-black/5 p-6">
-            <h3 class="text-lg font-bold text-gray-900">What we make</h3>
-            <ul class="mt-3 space-y-2 text-gray-700 text-sm">
-              <li>• Thick, spoonable puddings in flavors you actually want (Pistachio, Dark Chocolate, Lotus, Snickers, and more).</li>
-              <li>• Macros that are consistent across flavors, so picking a taste doesn’t wreck your plan.</li>
-              <li>• Built for daily use: gym days, busy days, and everything in between.</li>
-            </ul>
+      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16"></div>
+    </div>
+  </section>
+
+  <!-- About Overlay -->
+  <section id="about-page" class="hidden fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
+    <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
+        <button id="about-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          Back
+        </button>
+        <h2 class="text-xl font-bold tracking-tight text-gray-900">About Qudra</h2>
+        <div class="w-10"></div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-10">
+      <div class="grid md:grid-cols-2 gap-10 items-start">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">Qudra: power, done clean.</h1>
+          <p class="mt-4 text-gray-700 text-base md:text-lg">Qudra (قدرة) means <span class="font-semibold">ability / capacity</span>—the strength to get things done. That’s the whole point: a protein pudding that tastes great, keeps macros honest, and skips the junk.</p>
+          <div class="mt-6 flex flex-wrap gap-3 text-sm">
+            <span class="px-3 py-1 rounded-full bg-white border border-black/10">No added sugar</span>
+            <span class="px-3 py-1 rounded-full bg-white border border-black/10">~17g protein / cup</span>
+            <span class="px-3 py-1 rounded-full bg-white border border-black/10">190–250 kcal</span>
+            <span class="px-3 py-1 rounded-full bg-white border border-black/10">4–6g fat · 20–27g carbs</span>
           </div>
         </div>
-
-        <!-- Pillars -->
-        <div class="mt-12 grid md:grid-cols-3 gap-6">
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
-            <h4 class="font-bold text-gray-900">Taste first</h4>
-            <p class="mt-2 text-sm text-gray-700">If it doesn’t taste good, you won’t eat it. We build flavor and texture before anything else.</p>
-          </div>
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
-            <h4 class="font-bold text-gray-900">Straight macros</h4>
-            <p class="mt-2 text-sm text-gray-700">Clear labels. Real serving sizes. No games. Check the cup—what you see is what you get.</p>
-          </div>
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
-            <h4 class="font-bold text-gray-900">Clean standards</h4>
-            <p class="mt-2 text-sm text-gray-700">No added sugar. Quality ingredients. Made in controlled kitchens with cold-chain handling.</p>
-          </div>
-        </div>
-
-        <!-- Details -->
-        <div class="mt-12 grid md:grid-cols-2 gap-8">
-          <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
-            <h4 class="font-bold text-gray-900">Ingredients & allergens</h4>
-            <ul class="mt-3 space-y-2 text-sm text-gray-700">
-              <li>• Dairy-based recipes; some flavors may include nuts or biscuits.</li>
-              <li>• Contains milk. Nut flavors contain tree nuts. Some flavors may contain gluten (e.g., biscuit-based).</li>
-              <li>• Always read the flavor label for the exact ingredient list.</li>
-            </ul>
-          </div>
-          <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
-            <h4 class="font-bold text-gray-900">Storage & handling</h4>
-            <ul class="mt-3 space-y-2 text-sm text-gray-700">
-              <li>• Keep refrigerated (0–5°C / 32–41°F). Do not freeze.</li>
-              <li>• Best enjoyed chilled. Check the date on the lid for freshness.</li>
-              <li>• Transport in a cooler when you’re on the move.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- FAQ -->
-        <div class="mt-12">
-          <h3 class="text-lg font-bold text-gray-900">FAQ</h3>
-          <div class="mt-4 grid md:grid-cols-2 gap-6 text-sm text-gray-700">
-            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
-              <p class="font-semibold">Is there added sugar?</p>
-              <p class="mt-1">No added sugar. Sweetness comes from the recipe ingredients. Always check your cup’s label.</p>
-            </div>
-            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
-              <p class="font-semibold">Is it halal?</p>
-              <p class="mt-1">We source halal‑friendly ingredients and avoid alcohol‑based flavor carriers. For official certification status, see the label or contact us.</p>
-            </div>
-            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
-              <p class="font-semibold">When should I eat it?</p>
-              <p class="mt-1">Anytime you need protein: post‑workout, breakfast, late night. It’s built for daily use.</p>
-            </div>
-            <div class="rounded-2xl bg-white/70 border border-black/5 p-5">
-              <p class="font-semibold">What’s the shelf life?</p>
-              <p class="mt-1">Varies by flavor and batch. Always follow the date on the lid and keep it cold.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- CTA -->
-        <div class="mt-12 flex items-center gap-3">
-          <button id="about-shop-btn" class="px-6 py-3 rounded-full bg-black text-white font-semibold hover:bg-black/90">Shop Products</button>
-          <a href="#contact" class="text-sm text-gray-700 hover:text-gray-900">Questions? Contact us</a>
+        <div class="bg-white/60 rounded-3xl border border-black/5 p-6">
+          <h3 class="text-lg font-bold text-gray-900">What we make</h3>
+          <ul class="mt-3 space-y-2 text-gray-700 text-sm">
+            <li>• Thick, spoonable puddings in flavors you actually want (Pistachio, Dark Chocolate, Lotus, Snickers, and more).</li>
+            <li>• Macros that are consistent across flavors, so picking a taste doesn’t wreck your plan.</li>
+            <li>• Built for daily use: gym days, busy days, and everything in between.</li>
+          </ul>
         </div>
       </div>
-    </section>
-    
-    <script>
-        // ===== Catalog Data & Renderer (Products Page) =====
-        const catalog = [
-          { name: 'Pistachio', fat: 6, carbs: 27, calories: 210, protein: 17, sugarFree: true },
-          { name: 'Mix Berry', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
-          { name: 'Bounty', fat: 4, carbs: 20, calories: 190, protein: 17, sugarFree: true },
-          { name: 'Ferrero Rocher', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
-          { name: 'Dark Chocolate', fat: 5, carbs: 24, calories: 203, protein: 17, sugarFree: true },
-          { name: 'Lotus', fat: 5, carbs: 24, calories: 200, protein: 17, sugarFree: true },
-          { name: 'Snickers', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
-          { name: 'Caramel', fat: 5, carbs: 24, calories: 210, protein: 17, sugarFree: true },
-          // Add more as needed
-        ];
 
-        function macroRow(label, value, unit) {
-          return `<div class="flex justify-between"><span class="text-gray-600">${label}</span><span class="font-semibold">${value}${unit}</span></div>`;
-        }
+      <div class="mt-12 grid md:grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white/70 border border-black/5 p-6"><h4 class="font-bold text-gray-900">Taste first</h4><p class="mt-2 text-sm text-gray-700">If it doesn’t taste good, you won’t eat it. We build flavor and texture before anything else.</p></div>
+        <div class="rounded-2xl bg-white/70 border border-black/5 p-6"><h4 class="font-bold text-gray-900">Straight macros</h4><p class="mt-2 text-sm text-gray-700">Clear labels. Real serving sizes. No games. Check the cup—what you see is what you get.</p></div>
+        <div class="rounded-2xl bg-white/70 border border-black/5 p-6"><h4 class="font-bold text-gray-900">Clean standards</h4><p class="mt-2 text-sm text-gray-700">No added sugar. Quality ingredients. Made in controlled kitchens with cold-chain handling.</p></div>
+      </div>
 
-        function cardTemplate(item) {
-          const sugar = item.sugarFree ? 'No added sugar' : '';
-          // Simple pastel placeholder for image area (matches index theme)
-          return `
-            <div class="group rounded-2xl overflow-hidden border border-black/5 bg-white/70 backdrop-blur shadow-sm hover:shadow-lg transition">
-              <div class="aspect-[4/3] w-full bg-gradient-to-br from-white via-[#f6f2ec] to-[#ede7df] flex items-center justify-center">
-                <div class="w-24 h-24 rounded-full bg-[#f0ebe5] border border-black/5 flex items-center justify-center text-sm font-semibold text-gray-700">${item.name[0]}</div>
-              </div>
-              <div class="p-4">
-                <div class="flex items-start justify-between gap-3">
-                  <h3 class="text-lg font-bold text-gray-900">${item.name}</h3>
-                  <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">${sugar}</span>
-                </div>
-                <div class="mt-3 space-y-1 text-sm">
-                  ${macroRow('Fat', item.fat, 'g')}
-                  ${macroRow('Carbs', item.carbs, 'g')}
-                  ${macroRow('Calories', item.calories, '')}
-                  ${macroRow('Protein', item.protein, 'g')}
-                </div>
-                <div class="mt-4 flex items-center justify-between">
-                  <button class="px-4 py-2 text-sm rounded-full bg-black text-white hover:bg-black/90">Select</button>
-                  <span class="text-xs text-gray-500">~${(item.protein*4 + item.carbs*4 + item.fat*9)} kcal (computed)</span>
-                </div>
-              </div>
-            </div>`;
-        }
+      <div class="mt-12 grid md:grid-cols-2 gap-8">
+        <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
+          <h4 class="font-bold text-gray-900">Ingredients & allergens</h4>
+          <ul class="mt-3 space-y-2 text-sm text-gray-700">
+            <li>• Dairy-based recipes; some flavors may include nuts or biscuits.</li>
+            <li>• Contains milk. Nut flavors contain tree nuts. Some flavors may contain gluten (e.g., biscuit-based).</li>
+            <li>• Always read the flavor label for the exact ingredient list.</li>
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
+          <h4 class="font-bold text-gray-900">Storage & handling</h4>
+          <ul class="mt-3 space-y-2 text-sm text-gray-700">
+            <li>• Keep refrigerated (0–5°C / 32–41°F). Do not freeze.</li>
+            <li>• Best enjoyed chilled. Check the date on the lid for freshness.</li>
+            <li>• Transport in a cooler when you’re on the move.</li>
+          </ul>
+        </div>
+      </div>
 
-        function renderCatalog(list) {
-          const grid = document.getElementById('catalog-grid');
-          grid.innerHTML = list.map(cardTemplate).join('');
-        }
+      <div class="mt-12">
+        <h3 class="text-lg font-bold text-gray-900">FAQ</h3>
+        <div class="mt-4 grid md:grid-cols-2 gap-6 text-sm text-gray-700">
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">Is there added sugar?</p><p class="mt-1">No added sugar. Sweetness comes from the recipe ingredients. Always check your cup’s label.</p></div>
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">Is it halal?</p><p class="mt-1">We source halal-friendly ingredients and avoid alcohol-based flavor carriers. For official certification status, see the label or contact us.</p></div>
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">When should I eat it?</p><p class="mt-1">Anytime you need protein: post-workout, breakfast, late night. It’s built for daily use.</p></div>
+          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">What’s the shelf life?</p><p class="mt-1">Varies by flavor and batch. Always follow the date on the lid and keep it cold.</p></div>
+        </div>
+      </div>
 
-        // Filtering & search
-        const searchEl = document.getElementById('catalog-search');
-        const chips = Array.from(document.querySelectorAll('.filter-chip'));
-        function applyFilters() {
-          const q = (searchEl.value || '').toLowerCase();
-          const active = chips.find(c => c.classList.contains('bg-black/80'))?.dataset.filter || 'all';
-          const filtered = catalog.filter(it => {
-            const nameMatch = it.name.toLowerCase().includes(q);
-            let pass = true;
-            if (active === 'lowfat') pass = it.fat <= 5;
-            if (active === '≤200kcal') pass = it.calories <= 200;
-            if (active === 'nosugar') pass = !!it.sugarFree;
-            return nameMatch && pass;
+      <div class="mt-12 flex items-center gap-3">
+        <button id="about-shop-btn" class="px-6 py-3 rounded-full bg-black text-white font-semibold hover:bg-black/90">Shop Products</button>
+        <a href="#contact" class="text-sm text-gray-700 hover:text-gray-900">Questions? Contact us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Overlay -->
+  <section id="contact-page" class="hidden fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
+    <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
+        <button id="contact-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          Back
+        </button>
+        <h2 class="text-xl font-bold tracking-tight text-gray-900">Contact</h2>
+        <div class="w-10"></div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-10">
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
+          <h3 class="text-lg font-bold text-gray-900">Talk to us</h3>
+          <p class="mt-2 text-sm text-gray-700">Questions, partnerships, wholesale, or custom flavors—drop a line.</p>
+          <form id="contact-form" class="mt-4 space-y-3">
+            <div>
+              <label class="block text-sm text-gray-700">Name</label>
+              <input type="text" required class="mt-1 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/10"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700">Email</label>
+              <input type="email" required class="mt-1 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/10"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700">Message</label>
+              <textarea rows="5" required class="mt-1 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/10"></textarea>
+            </div>
+            <button type="submit" class="mt-2 px-5 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-black/90">Send</button>
+          </form>
+        </div>
+        <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
+          <h3 class="text-lg font-bold text-gray-900">Details</h3>
+          <ul class="mt-3 space-y-2 text-sm text-gray-700">
+            <li>• Email: <a href="mailto:hello@qudra.co" class="underline">hello@qudra.co</a></li>
+            <li>• Instagram: <a href="#" class="underline">@qudra</a></li>
+            <li>• Hours: Mon–Sat 9:00–18:00</li>
+            <li>• For wholesale, include expected weekly volume and delivery location.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ===== Catalog (Products overlay) =====
+    const catalog = [
+      { name: 'Pistachio', fat: 6, carbs: 27, calories: 210, protein: 17, sugarFree: true },
+      { name: 'Mix Berry', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
+      { name: 'Bounty', fat: 4, carbs: 20, calories: 190, protein: 17, sugarFree: true },
+      { name: 'Ferrero Rocher', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
+      { name: 'Dark Chocolate', fat: 5, carbs: 24, calories: 203, protein: 17, sugarFree: true },
+      { name: 'Lotus', fat: 5, carbs: 24, calories: 200, protein: 17, sugarFree: true },
+      { name: 'Snickers', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
+      { name: 'Caramel', fat: 5, carbs: 24, calories: 210, protein: 17, sugarFree: true },
+    ];
+    function macroRow(label,v,u){return `<div class="flex justify-between"><span class="text-gray-600">${label}</span><span class="font-semibold">${v}${u}</span></div>`;}
+    function cardTemplate(item){
+      const sugar = item.sugarFree ? 'No added sugar' : '';
+      return `
+      <div class="group rounded-2xl overflow-hidden border border-black/5 bg-white/70 backdrop-blur shadow-sm hover:shadow-lg transition">
+        <div class="aspect-[4/3] w-full bg-gradient-to-br from-white via-[#f6f2ec] to-[#ede7df] flex items-center justify-center">
+          <div class="w-24 h-24 rounded-full bg-[#f0ebe5] border border-black/5 flex items-center justify-center text-sm font-semibold text-gray-700">${item.name[0]}</div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-start justify-between gap-3">
+            <h3 class="text-lg font-bold text-gray-900">${item.name}</h3>
+            <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">${sugar}</span>
+          </div>
+          <div class="mt-3 space-y-1 text-sm">
+            ${macroRow('Fat',item.fat,'g')}
+            ${macroRow('Carbs',item.carbs,'g')}
+            ${macroRow('Calories',item.calories,'')}
+            ${macroRow('Protein',item.protein,'g')}
+          </div>
+          <div class="mt-4 flex items-center justify-between">
+            <button class="px-4 py-2 text-sm rounded-full bg-black text-white hover:bg-black/90">Select</button>
+            <span class="text-xs text-gray-500">~${(item.protein*4 + item.carbs*4 + item.fat*9)} kcal (computed)</span>
+          </div>
+        </div>
+      </div>`;
+    }
+    function renderCatalog(list){ document.getElementById('catalog-grid').innerHTML = list.map(cardTemplate).join(''); }
+    const searchEl=document.getElementById('catalog-search'); const chips=Array.from(document.querySelectorAll('.filter-chip'));
+    function applyFilters(){
+      const q=(searchEl.value||'').toLowerCase();
+      const active=chips.find(c=>c.classList.contains('bg-black/80'))?.dataset.filter||'all';
+      const filtered=catalog.filter(it=>{
+        const nameMatch=it.name.toLowerCase().includes(q);
+        let pass=true; if(active==='lowfat') pass=it.fat<=5; if(active==='≤200kcal') pass=it.calories<=200; if(active==='nosugar') pass=!!it.sugarFree;
+        return nameMatch && pass;
+      });
+      renderCatalog(filtered);
+    }
+    searchEl?.addEventListener('input',applyFilters);
+    chips.forEach(ch=>ch.addEventListener('click',()=>{chips.forEach(c=>c.classList.remove('bg-black/80','text-white'));chips.forEach(c=>c.classList.add('bg-white','text-gray-800'));ch.classList.remove('bg-white','text-gray-800');ch.classList.add('bg-black/80','text-white');applyFilters();}));
+
+    // Global flag so overlays can pause hero spin without scope mess
+    let isTransitioning = false;
+
+    // Products overlay toggling
+    const productsPage=document.getElementById('products-page');
+    const productsOpeners=[document.getElementById('nav-products'),document.getElementById('shop-now-btn')].filter(Boolean);
+    const productsClose=document.getElementById('products-close');
+    function openProducts(){ isTransitioning=true; productsPage.classList.remove('hidden'); renderCatalog(catalog); applyFilters(); }
+    function closeProducts(){ productsPage.classList.add('hidden'); isTransitioning=false; }
+    productsOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openProducts();}));
+    productsClose?.addEventListener('click',closeProducts);
+
+    // About overlay toggling
+    const aboutPage=document.getElementById('about-page');
+    const aboutOpeners=[document.getElementById('nav-about'),document.getElementById('mobile-about')].filter(Boolean);
+    const aboutClose=document.getElementById('about-close');
+    const aboutShopBtn=document.getElementById('about-shop-btn');
+    function openAbout(){ isTransitioning=true; aboutPage.classList.remove('hidden'); }
+    function closeAbout(){ aboutPage.classList.add('hidden'); isTransitioning=false; }
+    aboutOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openAbout();}));
+    aboutClose?.addEventListener('click',closeAbout);
+    aboutShopBtn?.addEventListener('click',()=>{ closeAbout(); const productsLink=document.getElementById('nav-products'); productsLink?.dispatchEvent(new Event('click')); });
+
+    // Contact overlay toggling
+    const contactPage=document.getElementById('contact-page');
+    const contactOpeners=[document.getElementById('nav-contact'),document.getElementById('mobile-contact')].filter(Boolean);
+    const contactClose=document.getElementById('contact-close');
+    function openContact(){ isTransitioning=true; contactPage.classList.remove('hidden'); }
+    function closeContact(){ contactPage.classList.add('hidden'); isTransitioning=false; }
+    contactOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openContact();}));
+    contactClose?.addEventListener('click',closeContact);
+    document.querySelectorAll('a[href="#contact"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openContact();}));
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      const productData=[
+        { name:'Almond',   mainModel:'AnyConv.com__tea-cup.glb', surroundingModel:'walnuts.glb', color:'#e0d9d1' },
+        { name:'Lotus',    mainModel:'lotus.glb',                surroundingModel:'petals.glb',  color:'#d1e0d9' },
+        { name:'Hazelnut', mainModel:'AnyConv.com__tea-cup.glb', surroundingModel:'walnuts.glb', color:'#e0d1d1' },
+        { name:'Walnut',   mainModel:'walnut.glb',               surroundingModel:'walnuts.glb', color:'#d9e0d1' },
+      ];
+
+      let currentProductIndex=0;
+      isTransitioning=false; // reset
+
+      const scene=new THREE.Scene();
+      const camera=new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+      camera.position.z=5;
+
+      const renderer=new THREE.WebGLRenderer({ antialias:true, alpha:true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled=true;
+      document.getElementById('product-canvas-container').appendChild(renderer.domElement);
+
+      // Lighting
+      const ambientLight=new THREE.AmbientLight(0xffffff,0.7); scene.add(ambientLight);
+      const dirLight=new THREE.DirectionalLight(0xffffff,0.8); dirLight.position.set(5,10,7.5); dirLight.castShadow=true; dirLight.shadow.mapSize.width=1024; dirLight.shadow.mapSize.height=1024; scene.add(dirLight);
+
+      // Ground + scene offset
+      const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.ShadowMaterial({opacity:0.3}));
+      ground.rotation.x=-Math.PI/2;
+      const SCENE_Y_OFFSET=-1.2; // move everything down a lot
+      ground.position.y=SCENE_Y_OFFSET;
+      ground.receiveShadow=true;
+      scene.add(ground);
+
+      const loader=new THREE.GLTFLoader();
+      const draco=new THREE.DRACOLoader(); draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/'); loader.setDRACOLoader(draco);
+      const loadedModels={};
+
+      let mainProductGroup=new THREE.Group();
+      let surroundingGroup=new THREE.Group();
+      mainProductGroup.position.y=SCENE_Y_OFFSET;
+      surroundingGroup.position.y=SCENE_Y_OFFSET;
+      scene.add(mainProductGroup, surroundingGroup);
+
+      function setOpacity(obj,opacity){
+        obj.traverse(child=>{ if(child.isMesh){ child.material.transparent=true; child.material.opacity=opacity; }});
+      }
+
+      function loadModel(url){
+        return new Promise((resolve)=>{
+          if(loadedModels[url]) return resolve(loadedModels[url].clone());
+          loader.load(url,(gltf)=>{
+            const model=gltf.scene;
+            model.traverse(c=>{ if(c.isMesh) c.castShadow=true; });
+            loadedModels[url]=model; resolve(model.clone());
+          },undefined,(err)=>{
+            console.error(`Failed to load ${url}`,err);
+            resolve(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({color:0xff0000})));
           });
-          renderCatalog(filtered);
-        }
-        searchEl?.addEventListener('input', applyFilters);
-        chips.forEach(ch => ch.addEventListener('click', () => {
-          chips.forEach(c => c.classList.remove('bg-black/80','text-white'));
-          chips.forEach(c => c.classList.add('bg-white','text-gray-800'));
-          ch.classList.remove('bg-white','text-gray-800');
-          ch.classList.add('bg-black/80','text-white');
-          applyFilters();
-        }));
-
-        // Page toggling
-        const productsPage = document.getElementById('products-page');
-        const productsOpeners = [document.getElementById('nav-products'), document.getElementById('shop-now-btn')].filter(Boolean);
-        const productsClose = document.getElementById('products-close');
-        function openProducts() {
-          // Pause hero animations subtly by setting isTransitioning
-          isTransitioning = true;
-          productsPage.classList.remove('hidden');
-          renderCatalog(catalog);
-          applyFilters();
-        }
-        function closeProducts() {
-          productsPage.classList.add('hidden');
-          isTransitioning = false;
-        }
-        productsOpeners.forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); openProducts(); }));
-        productsClose?.addEventListener('click', closeProducts);
-
-        // About page toggling
-        const aboutPage = document.getElementById('about-page');
-        const aboutOpeners = [document.getElementById('nav-about'), document.getElementById('mobile-about')].filter(Boolean);
-        const aboutClose = document.getElementById('about-close');
-        const aboutShopBtn = document.getElementById('about-shop-btn');
-        function openAbout() {
-          isTransitioning = true; // pause hero spin subtly
-          aboutPage.classList.remove('hidden');
-        }
-        function closeAbout() {
-          aboutPage.classList.add('hidden');
-          isTransitioning = false;
-        }
-        aboutOpeners.forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); openAbout(); }));
-        aboutClose?.addEventListener('click', closeAbout);
-        aboutShopBtn?.addEventListener('click', () => {
-          closeAbout();
-          // Open products overlay after closing about
-          const productsLink = document.getElementById('nav-products');
-          productsLink?.dispatchEvent(new Event('click'));
         });
+      }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const productData = [
-                { name: 'Almond', mainModel: 'AnyConv.com__tea-cup.glb', surroundingModel: 'walnuts.glb', color: '#e0d9d1' },
-                { name: 'Lotus', mainModel: 'lotus.glb', surroundingModel: 'petals.glb', color: '#d1e0d9' },
-                { name: 'Hazelnut', mainModel: 'AnyConv.com__tea-cup.glb', surroundingModel: 'walnuts.glb', color: '#e0d1d1' },
-                { name: 'Walnut', mainModel: 'walnut.glb', surroundingModel: 'walnuts.glb', color: '#d9e0d1' },
-            ];
+      function fitAndCenterObject(obj, targetHeight=1.6){ // half size
+        obj.updateWorldMatrix(true,true);
+        const box=new THREE.Box3().setFromObject(obj);
+        const size=box.getSize(new THREE.Vector3());
+        const center=box.getCenter(new THREE.Vector3());
+        obj.position.sub(center);
+        const h=size.y||1; const factor=targetHeight/h;
+        obj.scale.multiplyScalar(factor);
+        const box2=new THREE.Box3().setFromObject(obj);
+        obj.position.y += -box2.min.y;
+      }
 
-            let currentProductIndex = 0;
-            let isTransitioning = false;
+      function refitCameraToObject(obj, offset=1.25){
+        obj.updateWorldMatrix(true,true);
+        const box=new THREE.Box3().setFromObject(obj);
+        const size=box.getSize(new THREE.Vector3());
+        const vFOV=THREE.MathUtils.degToRad(camera.fov);
+        const hFOV=2*Math.atan(Math.tan(vFOV/2)*camera.aspect);
+        const distY=(size.y/2)/Math.tan(vFOV/2);
+        const distX=(size.x/2)/Math.tan(hFOV/2);
+        const distance=Math.max(distX,distY)*offset;
+        camera.position.set(0, size.y*0.1, distance);
+        camera.near=Math.max(0.01, distance/100);
+        camera.far=distance*100;
+        camera.updateProjectionMatrix();
+      }
 
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 5;
-            
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.shadowMap.enabled = true; // Enable shadows
-            document.getElementById('product-canvas-container').appendChild(renderer.domElement);
+      async function transitionTo(index){
+        if(isTransitioning) return;
+        isTransitioning=true;
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-            scene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(5, 10, 7.5);
-            directionalLight.castShadow = true; // Make light cast shadows
-            directionalLight.shadow.mapSize.width = 1024;
-            directionalLight.shadow.mapSize.height = 1024;
-            scene.add(directionalLight);
+        const nextProduct=productData[index];
+        const fadeSpeed=0.05;
+        const spinSpeed=0.2;
 
-            // Ground plane to receive shadows
-            const ground = new THREE.Mesh(
-                new THREE.PlaneGeometry(20, 20),
-                new THREE.ShadowMaterial({ opacity: 0.3 })
-            );
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = 0;
-            ground.receiveShadow = true;
-            scene.add(ground);
+        // keep previous groups partially visible
+        const hasPrev = mainProductGroup.children.length>0;
+        let prevMain=null, prevSurround=null;
+        if(hasPrev){
+          prevMain=mainProductGroup; prevSurround=surroundingGroup;
+          let op=1;
+          while(op>0.35){
+            op-=fadeSpeed;
+            prevMain.rotation.y+=spinSpeed;
+            setOpacity(prevMain, Math.max(0.35, op));
+            setOpacity(prevSurround, Math.max(0.35, op));
+            await new Promise(r=>setTimeout(r,16));
+          }
+          // create fresh groups for the new product
+          mainProductGroup=new THREE.Group();
+          surroundingGroup=new THREE.Group();
+          mainProductGroup.position.y=SCENE_Y_OFFSET;
+          surroundingGroup.position.y=SCENE_Y_OFFSET;
+          scene.add(mainProductGroup, surroundingGroup);
+        }
 
-            const loader = new THREE.GLTFLoader();
-            const dracoLoader = new THREE.DRACOLoader();
-            dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-            loader.setDRACOLoader(dracoLoader);
-            const loadedModels = {};
-            let mainProductGroup = new THREE.Group();
-            let surroundingGroup = new THREE.Group();
-            scene.add(mainProductGroup, surroundingGroup);
+        // background text: fade-in only
+        const bgText=document.getElementById('background-text');
+        bgText.textContent=nextProduct.name;
+        bgText.style.color=nextProduct.color;
+        try{ bgText.animate([{opacity:0},{opacity:1}],{duration:500,easing:'ease-out',fill:'forwards'}); }catch(_){ bgText.style.opacity='1'; }
 
-            function setOpacity(obj, opacity) {
-                obj.traverse(child => {
-                    if (child.isMesh) {
-                        child.material.transparent = true;
-                        child.material.opacity = opacity;
-                    }
-                });
-            }
+        // load + place
+        const mainModel=await loadModel(nextProduct.mainModel);
+        fitAndCenterObject(mainModel, 1.6);
+        setOpacity(mainModel,0);
+        mainProductGroup.add(mainModel);
+        refitCameraToObject(mainProductGroup, 1.3);
 
-            function loadModel(url) {
-                return new Promise((resolve, reject) => {
-                    if (loadedModels[url]) return resolve(loadedModels[url].clone());
-                    loader.load(url, (gltf) => {
-                        const model = gltf.scene;
-                        model.traverse(child => {
-                           if(child.isMesh) child.castShadow = true;
-                        });
-                        loadedModels[url] = model;
-                        resolve(model.clone());
-                    }, undefined, (err) => {
-                         console.error(`Failed to load ${url}`, err);
-                         // Resolve with a fallback cube if loading fails
-                         const fallback = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({color: 0xff0000}));
-                         resolve(fallback);
-                    });
-                });
-            }
-            function fitAndCenterObject(obj, targetHeight = 3.2) {
-                obj.updateWorldMatrix(true, true);
-                const box = new THREE.Box3().setFromObject(obj);
-                const size = box.getSize(new THREE.Vector3());
-                const center = box.getCenter(new THREE.Vector3());
-                // Center at origin
-                obj.position.sub(center);
-                // Scale to target height (reduces exaggerated perspective)
-                const h = size.y || 1;
-                const factor = targetHeight / h;
-                obj.scale.multiplyScalar(factor);
-                // Recompute box after scaling and place bottom at y=0
-                const box2 = new THREE.Box3().setFromObject(obj);
-                obj.position.y += -box2.min.y;
-            }
+        const surroundingTemplate=await loadModel(nextProduct.surroundingModel);
+        for(let i=0;i<10;i++){
+          const s_obj=surroundingTemplate.clone();
+          const s=0.08 + Math.random()*0.06;
+          s_obj.scale.set(s,s,s);
+          s_obj.position.set((Math.random()-0.5)*5, ((Math.random()-0.5)*2)-1.0, (Math.random()-0.5)*5);
+          s_obj.originalY=s_obj.position.y;
+          surroundingGroup.add(s_obj);
+        }
+        setOpacity(surroundingGroup,0);
 
-            function refitCameraToObject(obj, offset = 1.25) {
-                obj.updateWorldMatrix(true, true);
-                const box = new THREE.Box3().setFromObject(obj);
-                const size = box.getSize(new THREE.Vector3());
-                const vFOV = THREE.MathUtils.degToRad(camera.fov);
-                const hFOV = 2 * Math.atan(Math.tan(vFOV / 2) * camera.aspect);
-                const distY = (size.y / 2) / Math.tan(vFOV / 2);
-                const distX = (size.x / 2) / Math.tan(hFOV / 2);
-                const distance = Math.max(distX, distY) * offset;
-                camera.position.set(0, size.y * 0.1, distance);
-                camera.near = Math.max(0.01, distance / 100);
-                camera.far = distance * 100;
-                camera.updateProjectionMatrix();
-            }
-            
-            async function transitionTo(index) {
-                if (isTransitioning) return;
-                isTransitioning = true;
-                
-                const nextProduct = productData[index];
-                const fadeSpeed = 0.05;
-                const spinSpeed = 0.2;
+        // fade in new while old sits at 35%
+        let op2=0;
+        while(op2<1){
+          op2+=fadeSpeed;
+          mainProductGroup.rotation.y+=spinSpeed;
+          setOpacity(mainProductGroup, Math.min(1,op2));
+          setOpacity(surroundingGroup, Math.min(1,op2));
+          await new Promise(r=>setTimeout(r,16));
+        }
 
-                // Animate out existing models, if any
-                if (mainProductGroup.children.length > 0) {
-                    let opacity = 1.0;
-                    while (opacity > 0) {
-                        opacity -= fadeSpeed;
-                        mainProductGroup.rotation.y += spinSpeed;
-                        setOpacity(mainProductGroup, Math.max(0, opacity));
-                        setOpacity(surroundingGroup, Math.max(0, opacity));
-                        await new Promise(r => setTimeout(r, 16));
-                    }
-                }
-                
-                // Clear old objects from the scene
-                while (mainProductGroup.children.length > 0) mainProductGroup.remove(mainProductGroup.children[0]);
-                while (surroundingGroup.children.length > 0) surroundingGroup.remove(surroundingGroup.children[0]);
-                
-                // Update UI text
-                const bgText = document.getElementById('background-text');
-                bgText.style.opacity = '0';
-                await new Promise(r => setTimeout(r, 200));
-                bgText.textContent = nextProduct.name;
-                bgText.style.color = nextProduct.color;
-                bgText.style.opacity = '1';
+        if(hasPrev && prevMain && prevSurround){ scene.remove(prevMain); scene.remove(prevSurround); }
 
-                // Load and prepare new objects
-                const mainModel = await loadModel(nextProduct.mainModel);
-                fitAndCenterObject(mainModel, 3.2);
-                setOpacity(mainModel, 0);
-                mainProductGroup.add(mainModel);
-                refitCameraToObject(mainProductGroup, 1.3);
+        currentProductIndex=index;
+        isTransitioning=false;
+      }
 
-                const surroundingTemplate = await loadModel(nextProduct.surroundingModel);
-                for (let i = 0; i < 10; i++) {
-                    const s_obj = surroundingTemplate.clone();
-                    const s = 0.08 + Math.random() * 0.06; // smaller cubes
-                    s_obj.scale.set(s, s, s);
-                    s_obj.position.set(
-                        (Math.random() - 0.5) * 5,            // slightly tighter spread in X
-                        ((Math.random() - 0.5) * 2) - 1.0,    // push them downward overall
-                        (Math.random() - 0.5) * 5             // slightly tighter spread in Z
-                    );
-                    s_obj.originalY = s_obj.position.y;
-                    surroundingGroup.add(s_obj);
-                }
-                setOpacity(surroundingGroup, 0);
-
-                // Animate in new models
-                let opacity = 0.0;
-                while (opacity < 1) {
-                    opacity += fadeSpeed;
-                    mainProductGroup.rotation.y += spinSpeed;
-                    setOpacity(mainProductGroup, Math.min(1, opacity));
-                    setOpacity(surroundingGroup, Math.min(1, opacity));
-                    await new Promise(r => setTimeout(r, 16));
-                }
-
-                currentProductIndex = index;
-                isTransitioning = false;
-            }
-
-
-            function animate() {
-                requestAnimationFrame(animate);
-
-                if (!isTransitioning) {
-                   mainProductGroup.rotation.y += 0.005;
-                }
-
-                const time = Date.now() * 0.001;
-                surroundingGroup.children.forEach(child => {
-                    child.position.y = child.originalY + Math.sin(time + child.position.x) * 0.25; // smaller bob amplitude
-                    child.rotation.x += 0.006;
-                    child.rotation.y += 0.006;
-                });
-                
-                renderer.render(scene, camera);
-            }
-            
-            // Event Listeners
-            document.getElementById('next-btn').addEventListener('click', () => {
-                const nextIndex = (currentProductIndex + 1) % productData.length;
-                transitionTo(nextIndex);
-            });
-            document.getElementById('prev-btn').addEventListener('click', () => {
-                const prevIndex = (currentProductIndex - 1 + productData.length) % productData.length;
-                transitionTo(prevIndex);
-            });
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                if (mainProductGroup.children.length) { refitCameraToObject(mainProductGroup, 1.3); }
-            });
-
-            // Initial Load
-            transitionTo(0);
-            animate();
+      function animate(){
+        requestAnimationFrame(animate);
+        if(!isTransitioning){ mainProductGroup.rotation.y += 0.005; }
+        const time=Date.now()*0.001;
+        surroundingGroup.children.forEach(child=>{
+          child.position.y = child.originalY + Math.sin(time + child.position.x)*0.25;
+          child.rotation.x += 0.006; child.rotation.y += 0.006;
         });
-    </script>
+        renderer.render(scene,camera);
+      }
+
+      document.getElementById('next-btn').addEventListener('click',()=>{ const i=(currentProductIndex+1)%productData.length; transitionTo(i); });
+      document.getElementById('prev-btn').addEventListener('click',()=>{ const i=(currentProductIndex-1+productData.length)%productData.length; transitionTo(i); });
+      window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); if(mainProductGroup.children.length){ refitCameraToObject(mainProductGroup,1.3);} });
+
+      // boot
+      transitionTo(0);
+      animate();
+    });
+  </script>
 </body>
 </html>
