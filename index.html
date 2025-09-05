@@ -14,7 +14,10 @@
     .background-text {
       font-size: 18vw; font-weight: 900; position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%); white-space: nowrap; user-select: none;
-      z-index: 1; transition: color .7s ease-in-out, opacity .5s ease-in-out;
+      z-index: 5; /* still behind the 3D canvas (z-10), but a bit closer */
+      pointer-events: none;
+      text-shadow: 0 8px 30px rgba(0,0,0,0.10), 0 3px 8px rgba(0,0,0,0.12);
+      transition: none; /* no fades unless we do it in JS on word switch */
     }
     .product-image-container { position:absolute; inset:0; z-index:10; }
     .nav-arrow {
@@ -440,11 +443,18 @@
           scene.add(mainProductGroup, surroundingGroup);
         }
 
-        // background text: fade-in only
-        const bgText=document.getElementById('background-text');
-        bgText.textContent=nextProduct.name;
-        bgText.style.color=nextProduct.color;
-        try{ bgText.animate([{opacity:0},{opacity:1}],{duration:500,easing:'ease-out',fill:'forwards'}); }catch(_){ bgText.style.opacity='1'; }
+        // Background word crossfade (only on switch). Otherwise, no opacity animations.
+        const bgText = document.getElementById('background-text');
+        try {
+          // fade out current word fast
+          await bgText.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-out', fill: 'forwards' }).finished;
+        } catch (_) { bgText.style.opacity = '0'; }
+        bgText.textContent = nextProduct.name;
+        bgText.style.color = nextProduct.color; // solid, clear color per product
+        try {
+          // fade back in
+          await bgText.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'forwards' }).finished;
+        } catch (_) { bgText.style.opacity = '1'; }
 
         // load + place
         const mainModel=await loadModel(nextProduct.mainModel);
