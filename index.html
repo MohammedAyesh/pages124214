@@ -9,6 +9,29 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- Performance: preconnect & preload -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+  <!-- Preload critical scripts and decoders -->
+  <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js">
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js">
+  <link rel="preload" as="fetch" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_decoder.wasm" crossorigin>
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_wasm_wrapper.js">
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_decoder.js">
+
+  <!-- Preload GLB assets used on the hero -->
+  <link rel="preload" as="fetch" href="AnyConv.com__tea-cup.glb" crossorigin>
+  <link rel="preload" as="fetch" href="lotus.glb" crossorigin>
+  <link rel="preload" as="fetch" href="walnut.glb" crossorigin>
+  <link rel="preload" as="fetch" href="walnuts.glb" crossorigin>
+  <link rel="preload" as="fetch" href="petals.glb" crossorigin>
   <style>
     body { font-family: 'Inter', sans-serif; background:#f0ebe5; overflow: hidden; }
     .background-text {
@@ -360,7 +383,10 @@
       scene.add(ground);
 
       const loader=new THREE.GLTFLoader();
-      const draco=new THREE.DRACOLoader(); draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/'); loader.setDRACOLoader(draco);
+      const draco=new THREE.DRACOLoader();
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+      draco.setDecoderConfig({ type: 'wasm' });
+      loader.setDRACOLoader(draco);
       const loadedModels={};
 
       let mainProductGroup=new THREE.Group();
@@ -505,10 +531,57 @@
       document.getElementById('prev-btn').addEventListener('click',()=>{ const i=(currentProductIndex-1+productData.length)%productData.length; transitionTo(i); });
       window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); if(mainProductGroup.children.length){ refitCameraToObject(mainProductGroup,2.2);} });
 
+      // start warming in background (don’t block first paint)
+      warmupAssets();
       // boot
       transitionTo(0);
       animate();
+      // ==== Preload / warmup for speed ====
+      function warmupAssets() {
+        const urls = Array.from(new Set([
+          ...productData.flatMap(p => [p.mainModel, p.surroundingModel]),
+          'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_decoder.wasm',
+          'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_wasm_wrapper.js'
+        ]));
+        // Kick off network warms
+        urls.forEach(u => { try { fetch(u, { mode: 'no-cors' }); } catch (_) {} });
+        // Prime GLTF cache so future transitions are instant
+        urls.filter(u => u.endsWith('.glb')).forEach(u => { try { loadModel(u); } catch (_) {} });
+      }
     });
+
+// ==== Runtime cache for speed on repeat visits ====
+if ('serviceWorker' in navigator) {
+  try {
+    const swCode = `self.addEventListener('install', e => { self.skipWaiting(); });
+self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  const url = new URL(req.url);
+  const cachable = /\\.(glb|wasm|js|css|woff2)$/.test(url.pathname) ||
+                   url.hostname.includes('fonts.gstatic.com') ||
+                   url.hostname.includes('cdn.jsdelivr.net') ||
+                   url.hostname.includes('cdnjs.cloudflare.com');
+  if (!cachable) return;
+  event.respondWith(
+    caches.open('qudra-v1').then(async cache => {
+      const hit = await cache.match(req, { ignoreSearch: true });
+      if (hit) return hit;
+      try {
+        const resp = await fetch(req);
+        cache.put(req, resp.clone());
+        return resp;
+      } catch (err) {
+        return hit || Response.error();
+      }
+    })
+  );
+});`;
+    const blob = new Blob([swCode], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url);
+  } catch (_) { /* ignore */ }
+}
   </script>
 </body>
 </html>
