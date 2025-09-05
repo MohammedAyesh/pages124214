@@ -33,7 +33,7 @@
   <!-- Header -->
   <header class="absolute top-0 left-0 right-0 z-20 px-4 sm:px-8 md:px-16 py-6">
     <div class="container mx-auto flex justify-between items-center">
-      <div class="text-2xl font-bold tracking-wider"><a href="#">storemilk</a></div>
+      <div class="text-2xl font-bold tracking-wider"><a href="#">Qudra</a></div>
       <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
         <a href="#" id="nav-products" class="hover:text-gray-900 transition-colors">Products</a>
         <a href="#" id="nav-about" class="hover:text-gray-900 transition-colors">About</a>
@@ -351,7 +351,7 @@
       // Ground + scene offset
       const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.ShadowMaterial({opacity:0.3}));
       ground.rotation.x=-Math.PI/2;
-      const SCENE_Y_OFFSET=-1.2; // move everything down a lot
+      const SCENE_Y_OFFSET=-0.2; // move everything down a lot
       ground.position.y=SCENE_Y_OFFSET;
       ground.receiveShadow=true;
       scene.add(ground);
@@ -384,7 +384,7 @@
         });
       }
 
-      function fitAndCenterObject(obj, targetHeight=1.6){ // half size
+      function fitAndCenterObject(obj, targetHeight=1){ // half size
         obj.updateWorldMatrix(true,true);
         const box=new THREE.Box3().setFromObject(obj);
         const size=box.getSize(new THREE.Vector3());
