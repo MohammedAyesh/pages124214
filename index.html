@@ -396,7 +396,7 @@
         obj.position.y += -box2.min.y;
       }
 
-      function refitCameraToObject(obj, offset=1.25){
+      function refitCameraToObject(obj, offset=1){
         obj.updateWorldMatrix(true,true);
         const box=new THREE.Box3().setFromObject(obj);
         const size=box.getSize(new THREE.Vector3());
