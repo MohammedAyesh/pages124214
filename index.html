@@ -33,14 +33,18 @@
   <link rel="preload" as="fetch" href="walnuts.glb" crossorigin>
   <link rel="preload" as="fetch" href="petals.glb" crossorigin>
   <style>
-    body { font-family: 'Inter', sans-serif; background:#f0ebe5; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); overflow: hidden; }
+    :root{ --bg:#f0ebe5; --fg:#0b0b0b; --accent:#111111; --letters:#111111; --cta-text:#ffffff; }
+    body, #products-page, #about-page, #contact-page { background: var(--bg) !important; }
+    #products-page .sticky, #about-page .sticky, #contact-page .sticky { background-color: color-mix(in srgb, var(--bg) 90%, white) !important; }
+    .ui-elements button, #about-shop-btn { border: none; }
     .background-text {
       font-size: 18vw; font-weight: 900; position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%); white-space: nowrap; user-select: none;
-      z-index: 5; /* still behind the 3D canvas (z-10), but a bit closer */
-      pointer-events: none;
-      text-shadow: 0 8px 30px rgba(0,0,0,0.10), 0 3px 8px rgba(0,0,0,0.12);
-      transition: none; /* no fades unless we do it in JS on word switch */
+      z-index: 5; pointer-events: none;
+      color: var(--letters, #111);
+      text-shadow: none;
+      transition: none;
     }
     .product-image-container { position:absolute; inset:0; z-index:10; }
     .nav-arrow {
@@ -351,10 +355,10 @@
 
     document.addEventListener('DOMContentLoaded',()=>{
       const productData=[
-        { name:'Almond',   mainModel:'AnyConv.com__tea-cup.glb', surroundingModel:'walnuts.glb', color:'#e0d9d1' },
-        { name:'Lotus',    mainModel:'lotus.glb',                surroundingModel:'petals.glb',  color:'#d1e0d9' },
-        { name:'Hazelnut', mainModel:'AnyConv.com__tea-cup.glb', surroundingModel:'walnuts.glb', color:'#e0d1d1' },
-        { name:'Walnut',   mainModel:'walnut.glb',               surroundingModel:'walnuts.glb', color:'#d9e0d1' },
+        { name:'Almond',   mainModel:'AnyConv.com__tea-cup.glb', surroundingModel:'walnuts.glb', color:'#ff3b3b', theme:{ bg:'#ffe8e6', text:'#0b0b0b', accent:'#ff3b3b', letters:'#ff0033', ctaText:'#ffffff' } },
+        { name:'Lotus',    mainModel:'lotus.glb',                surroundingModel:'petals.glb',  color:'#00c2ff', theme:{ bg:'#e6f7ff', text:'#0b0b0b', accent:'#00c2ff', letters:'#0091ff', ctaText:'#0b0b0b' } },
+        { name:'Hazelnut', mainModel:'AnyConv.com__tea-cup.glb', surroundingModel:'walnuts.glb', color:'#7d00ff', theme:{ bg:'#f1e6ff', text:'#0b0b0b', accent:'#7d00ff', letters:'#5a00c8', ctaText:'#ffffff' } },
+        { name:'Walnut',   mainModel:'walnut.glb',               surroundingModel:'walnuts.glb', color:'#00d26a', theme:{ bg:'#e6fff2', text:'#0b0b0b', accent:'#00d26a', letters:'#00a457', ctaText:'#0b0b0b' } },
       ];
 
       let currentProductIndex=0;
@@ -367,19 +371,18 @@
       const renderer=new THREE.WebGLRenderer({ antialias:true, alpha:true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.shadowMap.enabled=true;
+      renderer.shadowMap.enabled=false;
       document.getElementById('product-canvas-container').appendChild(renderer.domElement);
 
       // Lighting
       const ambientLight=new THREE.AmbientLight(0xffffff,0.7); scene.add(ambientLight);
-      const dirLight=new THREE.DirectionalLight(0xffffff,0.8); dirLight.position.set(5,10,7.5); dirLight.castShadow=true; dirLight.shadow.mapSize.width=1024; dirLight.shadow.mapSize.height=1024; scene.add(dirLight);
+      const dirLight=new THREE.DirectionalLight(0xffffff,0.8); dirLight.position.set(5,10,7.5); dirLight.castShadow=false; scene.add(dirLight);
 
       // Ground + scene offset
-      const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.ShadowMaterial({opacity:0.3}));
+      const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.MeshBasicMaterial({visible:false}));
       ground.rotation.x=-Math.PI/2;
       const SCENE_Y_OFFSET=-0.7; // move everything down a lot
       ground.position.y=SCENE_Y_OFFSET;
-      ground.receiveShadow=true;
       scene.add(ground);
 
       const loader=new THREE.GLTFLoader();
@@ -404,7 +407,7 @@
           if(loadedModels[url]) return resolve(loadedModels[url].clone());
           loader.load(url,(gltf)=>{
             const model=gltf.scene;
-            model.traverse(c=>{ if(c.isMesh) c.castShadow=true; });
+            model.traverse(c=>{ if(c.isMesh){ c.castShadow=false; c.receiveShadow=false; } });
             loadedModels[url]=model; resolve(model.clone());
           },undefined,(err)=>{
             console.error(`Failed to load ${url}`,err);
@@ -445,6 +448,17 @@
         isTransitioning=true;
 
         const nextProduct=productData[index];
+        // Apply vivid theme per flavor
+        const rootStyle=document.documentElement.style;
+        if(nextProduct.theme){
+          rootStyle.setProperty('--bg', nextProduct.theme.bg);
+          rootStyle.setProperty('--fg', nextProduct.theme.text);
+          rootStyle.setProperty('--accent', nextProduct.theme.accent);
+          rootStyle.setProperty('--letters', nextProduct.theme.letters);
+          rootStyle.setProperty('--cta-text', nextProduct.theme.ctaText || '#ffffff');
+          const shopBtn=document.getElementById('shop-now-btn');
+          if(shopBtn){ shopBtn.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--accent'); shopBtn.style.color = getComputedStyle(document.documentElement).getPropertyValue('--cta-text'); shopBtn.style.borderColor = 'transparent'; }
+        }
         const fadeSpeed=0.05;
         const spinSpeed=0.2;
 
@@ -476,7 +490,7 @@
           await bgText.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-out', fill: 'forwards' }).finished;
         } catch (_) { bgText.style.opacity = '0'; }
         bgText.textContent = nextProduct.name;
-        bgText.style.color = nextProduct.color; // solid, clear color per product
+        bgText.style.color = getComputedStyle(document.documentElement).getPropertyValue('--letters'); // vivid, pop color
         try {
           // fade back in
           await bgText.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'forwards' }).finished;
