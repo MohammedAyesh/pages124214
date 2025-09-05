@@ -384,7 +384,7 @@
         });
       }
 
-      function fitAndCenterObject(obj, targetHeight=0.5){ // half size
+      function fitAndCenterObject(obj, targetHeight=0){ // half size
         obj.updateWorldMatrix(true,true);
         const box=new THREE.Box3().setFromObject(obj);
         const size=box.getSize(new THREE.Vector3());
