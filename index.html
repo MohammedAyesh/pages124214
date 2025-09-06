@@ -118,12 +118,7 @@
       <p class="text-2xl md:text-4xl font-bold text-gray-400/30 italic">“Fuel your strength.”</p>
     </div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" class="absolute inset-0 z-10"></spline-viewer>
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <spline-viewer url="https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode" class="absolute inset-0 z-10"></spline-viewer>
-
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <spline-viewer url="https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode" class="absolute inset-0 z-10"></spline-viewer>
+    <spline-viewer id="spline-viewer" url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" class="absolute inset-0 z-10 pointer-events-none transform scale-125"></spline-viewer>
 
     <div class="ui-elements">
       <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
@@ -386,6 +381,42 @@
     document.querySelectorAll('a[href="#contact"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openContact();}));
 
 document.addEventListener('DOMContentLoaded',()=>{
+      // === Spline viewer controls (lock rotation, zoom in, smooth switching) ===
+      const spline = document.querySelector('#spline-viewer');
+      if (spline) {
+        // URLs to cycle through
+        const splineUrls = [
+          'https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode',
+          'https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode',
+          'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode'
+        ];
+        let splineIndex = 0;
+
+        // Lock user interaction with pointer-events (already via class), keep as safety
+        spline.style.pointerEvents = 'none';
+
+        // Ensure zoom-in via scale class; adjust if needed
+        // (Tailwind class already applied: transform scale-125)
+
+        function switchSpline(dir) {
+          splineIndex = (splineIndex + dir + splineUrls.length) % splineUrls.length;
+          const fadeOut = spline.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' });
+          fadeOut.finished.then(() => {
+            spline.setAttribute('url', splineUrls[splineIndex]);
+            spline.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-in', fill: 'forwards' });
+          }).catch(() => {
+            // Fallback without WAAPI
+            spline.style.opacity = '0';
+            spline.setAttribute('url', splineUrls[splineIndex]);
+            setTimeout(() => { spline.style.opacity = '1'; }, 50);
+          });
+        }
+
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        nextBtn && nextBtn.addEventListener('click', () => switchSpline(1));
+        prevBtn && prevBtn.addEventListener('click', () => switchSpline(-1));
+      }
       return; // Using Spline viewer; skip local Three.js scene setup
       const productData=[
         { name:'Almond',   mainModel:'browncup.glb', surroundingModel:'walnuts.glb', color:'#ff3b3b', theme:{ bg:'#ffe8e6', text:'#0b0b0b', accent:'#ff3b3b', letters:'#ff0033', ctaText:'#ffffff' } },
