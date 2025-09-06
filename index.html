@@ -394,6 +394,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode'
         ];
         let splineIndex = 0;
+        let isSwitching = false;
 
         // Lock user interaction with pointer-events (already via class), keep as safety
         spline.style.pointerEvents = 'none';
@@ -402,25 +403,42 @@ document.addEventListener('DOMContentLoaded',()=>{
         // (Tailwind class already applied: transform scale-125)
 
         function switchSpline(dir) {
-          if (!spline) return;
+          if (!spline || isSwitching) return;
+          isSwitching = true;
           splineIndex = (splineIndex + dir + splineUrls.length) % splineUrls.length;
+
           const wrap = document.getElementById('spline-wrap');
           const startAngle = 0;
           const midAngle = 90;
           const endAngle = 180;
 
-          // First half: rotate to 90° and dim slightly
+          // Phase 1: rotate to 90° and dim, then swap URL while hidden
           const out = wrap.animate([
             { transform: `rotateY(${startAngle}deg) scale(1.25)`, opacity: 1 },
-            { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0.6 }
+            { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0 }
           ], { duration: 320, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'forwards' });
 
           out.finished.then(() => {
-            // Swap scene at the "back" of the flip
-            spline.setAttribute('url', splineUrls[splineIndex]);
-            // Second half: 90° -> 180° and brighten
+            // Hide viewer while loading to avoid overlap
+            spline.style.opacity = '0';
+
+            // Swap scene URL (set both attribute and property for reliability)
+            const nextUrl = splineUrls[splineIndex];
+            try { spline.url = nextUrl; } catch(_) {}
+            spline.setAttribute('url', nextUrl);
+
+            return new Promise(resolve => {
+              const onLoad = () => { spline.removeEventListener('load', onLoad); resolve(); };
+              // If it somehow fires immediately, we still resolve
+              spline.addEventListener('load', onLoad, { once: true });
+              // Safety timeout in case 'load' doesn't fire
+              setTimeout(resolve, 1200);
+            });
+          }).then(() => {
+            // Phase 2: rotate 90° -> 180° and fade back in
+            spline.style.opacity = '1';
             return wrap.animate([
-              { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0.6 },
+              { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0 },
               { transform: `rotateY(${endAngle}deg) scale(1.25)`, opacity: 1 }
             ], { duration: 340, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'forwards' }).finished;
           }).then(() => {
@@ -428,9 +446,13 @@ document.addEventListener('DOMContentLoaded',()=>{
             wrap.style.transform = 'rotateY(0deg) scale(1.25)';
           }).catch(() => {
             // Fallback if WAAPI not available
-            wrap.style.opacity = '0';
-            spline.setAttribute('url', splineUrls[splineIndex]);
-            setTimeout(() => { wrap.style.opacity = '1'; }, 100);
+            spline.style.opacity = '0';
+            const nextUrl = splineUrls[splineIndex];
+            try { spline.url = nextUrl; } catch(_) {}
+            spline.setAttribute('url', nextUrl);
+            setTimeout(() => { spline.style.opacity = '1'; }, 150);
+          }).finally(() => {
+            isSwitching = false;
           });
         }
 
