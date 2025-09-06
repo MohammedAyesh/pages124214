@@ -56,6 +56,7 @@
     .nav-arrow.left { left:15%; } .nav-arrow.right { right:15%; }
     .ui-elements { position:absolute; bottom:10%; left:50%; transform: translateX(-50%); z-index:20; text-align:center; }
     @media (max-width:768px){ .background-text{ font-size:25vw } .nav-arrow.left{left:5%} .nav-arrow.right{right:5%} }
+    #spline-wrap { contain: layout paint; }
   </style>
 </head>
 <body class="text-gray-800">
@@ -118,7 +119,9 @@
       <p class="text-2xl md:text-4xl font-bold text-gray-400/30 italic">“Fuel your strength.”</p>
     </div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <spline-viewer id="spline-viewer" url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" class="absolute inset-0 z-10 pointer-events-none transform scale-125"></spline-viewer>
+    <div id="spline-wrap" class="absolute inset-0 z-10 pointer-events-none" style="perspective:1200px; transform-style:preserve-3d; will-change: transform, opacity;">
+      <spline-viewer id="spline-viewer" url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" class="w-full h-full [backface-visibility:hidden]"></spline-viewer>
+    </div>
 
     <div class="ui-elements">
       <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
@@ -399,16 +402,35 @@ document.addEventListener('DOMContentLoaded',()=>{
         // (Tailwind class already applied: transform scale-125)
 
         function switchSpline(dir) {
+          if (!spline) return;
           splineIndex = (splineIndex + dir + splineUrls.length) % splineUrls.length;
-          const fadeOut = spline.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' });
-          fadeOut.finished.then(() => {
+          const wrap = document.getElementById('spline-wrap');
+          const startAngle = 0;
+          const midAngle = 90;
+          const endAngle = 180;
+
+          // First half: rotate to 90° and dim slightly
+          const out = wrap.animate([
+            { transform: `rotateY(${startAngle}deg) scale(1.25)`, opacity: 1 },
+            { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0.6 }
+          ], { duration: 320, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'forwards' });
+
+          out.finished.then(() => {
+            // Swap scene at the "back" of the flip
             spline.setAttribute('url', splineUrls[splineIndex]);
-            spline.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-in', fill: 'forwards' });
+            // Second half: 90° -> 180° and brighten
+            return wrap.animate([
+              { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0.6 },
+              { transform: `rotateY(${endAngle}deg) scale(1.25)`, opacity: 1 }
+            ], { duration: 340, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'forwards' }).finished;
+          }).then(() => {
+            // Reset transform so we don't accumulate rotation
+            wrap.style.transform = 'rotateY(0deg) scale(1.25)';
           }).catch(() => {
-            // Fallback without WAAPI
-            spline.style.opacity = '0';
+            // Fallback if WAAPI not available
+            wrap.style.opacity = '0';
             spline.setAttribute('url', splineUrls[splineIndex]);
-            setTimeout(() => { spline.style.opacity = '1'; }, 50);
+            setTimeout(() => { wrap.style.opacity = '1'; }, 100);
           });
         }
 
