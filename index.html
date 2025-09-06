@@ -572,17 +572,21 @@ self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
-  const cachable = /\\.(glb|wasm|js|css|woff2)$/.test(url.pathname) ||
+  const cachable = /\\.(glb|wasm|js|css|woff2|png|jpg|jpeg)$/.test(url.pathname) ||
                    url.hostname.includes('fonts.gstatic.com') ||
                    url.hostname.includes('cdn.jsdelivr.net') ||
                    url.hostname.includes('cdnjs.cloudflare.com');
   if (!cachable) return;
   event.respondWith(
-    caches.open('qudra-v1').then(async cache => {
+    caches.open('qudra-v2').then(async cache => {
       const hit = await cache.match(req, { ignoreSearch: true });
       if (hit) return hit;
       try {
         const resp = await fetch(req);
+        // Do not cache opaque, error, or non-200 responses (prevents caching 404s like missing GLB)
+        if (!resp || resp.status !== 200) {
+          return resp;
+        }
         cache.put(req, resp.clone());
         return resp;
       } catch (err) {
