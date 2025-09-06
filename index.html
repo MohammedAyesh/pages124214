@@ -436,8 +436,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 
         const nextBtn = document.getElementById('next-btn');
         const prevBtn = document.getElementById('prev-btn');
-        nextBtn && nextBtn.addEventListener('click', () => switchSpline(1));
-        prevBtn && prevBtn.addEventListener('click', () => switchSpline(-1));
+        function resetAuto() { stopSplineAutoplay(); startSplineAutoplay(); }
+        nextBtn && nextBtn.addEventListener('click', () => { switchSpline(1); resetAuto(); });
+        prevBtn && prevBtn.addEventListener('click', () => { switchSpline(-1); resetAuto(); });
+
+        let splineAutoTimer = null;
+        function startSplineAutoplay(interval = 5000) {
+          stopSplineAutoplay();
+          splineAutoTimer = setInterval(() => {
+            // Advance to next cup with the same smooth 180° flip
+            switchSpline(1);
+          }, interval);
+        }
+        function stopSplineAutoplay() {
+          if (splineAutoTimer) { clearInterval(splineAutoTimer); splineAutoTimer = null; }
+        }
+        // Start rotating between the three cups automatically
+        startSplineAutoplay();
       }
       return; // Using Spline viewer; skip local Three.js scene setup
       const productData=[
