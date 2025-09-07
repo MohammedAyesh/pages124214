@@ -34,9 +34,9 @@
   <link rel="preload" as="fetch" href="petals.glb" crossorigin>
   <style>
     body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); overflow: hidden; }
-    :root{ --bg:#141414; --fg:#f7f7f7; --accent:#ffffff; --letters:#f7f7f7; --cta-text:#111111; }
-    body, #products-page, #about-page, #contact-page { background: var(--bg) !important; }
-    #products-page .sticky, #about-page .sticky, #contact-page .sticky { background-color: var(--bg) !important; }
+    :root{ --bg1:#f6efe6; --bg2:#e8d4b0; --fg:#0b0b0b; --accent:#111111; --letters:#111111; --cta-text:#ffffff; }
+    body, #products-page, #about-page, #contact-page { background-image: linear-gradient(180deg, var(--bg1), var(--bg2)) !important; background-color: var(--bg1) !important; }
+    #products-page .sticky, #about-page .sticky, #contact-page .sticky { background-image: linear-gradient(180deg, color-mix(in srgb, var(--bg1) 85%, white), color-mix(in srgb, var(--bg2) 85%, white)) !important; background-color: transparent !important; }
     .ui-elements button, #about-shop-btn { border: none; }
     .background-text {
       font-size: 18vw; font-weight: 900; position: absolute; top: 50%; left: 50%;
