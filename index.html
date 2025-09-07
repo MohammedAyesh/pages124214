@@ -54,7 +54,8 @@
     }
     .nav-arrow:hover { background:#fff; transform: translateY(-50%) scale(1.1); }
     .nav-arrow.left { left:15%; } .nav-arrow.right { right:15%; }
-    .ui-elements { position:absolute; bottom:10%; left:50%; transform: translateX(-50%); z-index:20; text-align:center; }
+    .ui-elements { position:absolute; bottom: calc(env(safe-area-inset-bottom, 0) + 16px); left:50%; transform: translateX(-50%); z-index:20; text-align:center; pointer-events:auto; }
+    @media (min-width: 640px){ .ui-elements{ bottom: 10%; } }
     @media (max-width:768px){ .background-text{ font-size:25vw } .nav-arrow.left{left:5%} .nav-arrow.right{right:5%} }
     #spline-wrap { contain: layout paint; }
     .overlay-transition { transition: opacity 0.5s ease; opacity: 0; pointer-events: none; }
@@ -121,14 +122,12 @@
       <div class="wm-text absolute right-6 top-6 text-[8vw]">⚡</div>
     </div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <div class="absolute inset-0 z-10 flex items-center justify-center">
-      <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-[80vw] h-[60vh] sm:w-[1120px] sm:h-[1120px]"></spline-viewer>
+    <div class="absolute inset-0 z-10 flex items-start justify-center pt-32 md:pt-44 lg:pt-56">
+      <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-[90vw] h-[65vh] max-w-[1200px] max-h-[11000px]"></spline-viewer>
     </div>
-
     <div class="ui-elements">
       <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
     </div>
-
   </main>
 
   <!-- Products Overlay -->
@@ -388,7 +387,7 @@
 
     // Products overlay toggling
     const productsPage=document.getElementById('products-page');
-    const productsOpeners=[document.getElementById('nav-products'),document.getElementById('shop-now-btn'),document.getElementById('mobile-products')].filter(Boolean);
+    const productsOpeners=[document.getElementById('nav-products'),document.getElementById('mobile-products'),document.getElementById('shop-now-btn')].filter(Boolean);
     const productsClose=document.getElementById('products-close');
     function openProducts(){ isTransitioning=true; productsPage.classList.add('active'); renderCatalog(catalog); applyFilters(); }
     function closeProducts(){ productsPage.classList.remove('active'); isTransitioning=false; }
