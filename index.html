@@ -352,13 +352,22 @@
     // Global flag so overlays can pause hero spin without scope mess
     let isTransitioning = false;
 
+    // Mobile menu open/close
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileOpenBtn = document.getElementById('mobile-menu-button');
+    const mobileCloseBtn = document.getElementById('close-mobile-menu');
+    function openMobileMenu(){ mobileMenu?.classList.remove('-translate-x-full'); }
+    function closeMobileMenu(){ mobileMenu?.classList.add('-translate-x-full'); }
+    mobileOpenBtn?.addEventListener('click', openMobileMenu);
+    mobileCloseBtn?.addEventListener('click', closeMobileMenu);
+
     // Products overlay toggling
     const productsPage=document.getElementById('products-page');
-    const productsOpeners=[document.getElementById('nav-products'),document.getElementById('shop-now-btn')].filter(Boolean);
+    const productsOpeners=[document.getElementById('nav-products'),document.getElementById('shop-now-btn'),document.getElementById('mobile-products')].filter(Boolean);
     const productsClose=document.getElementById('products-close');
     function openProducts(){ isTransitioning=true; productsPage.classList.add('active'); renderCatalog(catalog); applyFilters(); }
     function closeProducts(){ productsPage.classList.remove('active'); isTransitioning=false; }
-    productsOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openProducts();}));
+productsOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openProducts(); closeMobileMenu();}));
     productsClose?.addEventListener('click',closeProducts);
 
     // About overlay toggling
@@ -368,7 +377,7 @@
     const aboutShopBtn=document.getElementById('about-shop-btn');
     function openAbout(){ isTransitioning=true; aboutPage.classList.add('active'); }
     function closeAbout(){ aboutPage.classList.remove('active'); isTransitioning=false; }
-    aboutOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openAbout();}));
+aboutOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openAbout(); closeMobileMenu();}));
     aboutClose?.addEventListener('click',closeAbout);
     aboutShopBtn?.addEventListener('click',()=>{ closeAbout(); const productsLink=document.getElementById('nav-products'); productsLink?.dispatchEvent(new Event('click')); });
 
@@ -378,7 +387,7 @@
     const contactClose=document.getElementById('contact-close');
     function openContact(){ isTransitioning=true; contactPage.classList.add('active'); }
     function closeContact(){ contactPage.classList.remove('active'); isTransitioning=false; }
-    contactOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openContact();}));
+contactOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openContact(); closeMobileMenu();}));
     contactClose?.addEventListener('click',closeContact);
     document.querySelectorAll('a[href="#contact"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openContact();}));
 
