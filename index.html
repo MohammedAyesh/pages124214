@@ -61,7 +61,6 @@
     .overlay-transition.active { opacity: 1; pointer-events: auto; }
   </style>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
 </head>
 <body class="text-gray-800">
 
@@ -122,7 +121,7 @@
     <div class="absolute bottom-1/4 right-1/4 pointer-events-none select-none z-0 max-w-md">
       <p class="text-2xl md:text-4xl font-bold text-gray-400/30 italic">“Fuel your strength.”</p>
     </div>
-    <!-- Spline viewer script now loaded globally in <head> -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
     <div class="absolute inset-0 z-10 flex items-center justify-center">
       <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-[520px] h-[520px] sm:w-[560px] sm:h-[560px]"></spline-viewer>
     </div>
@@ -298,9 +297,9 @@
   <script>
     // ===== Catalog (Products overlay) =====
     const catalog = [
-      { name: 'Strawberry', fat: 5, carbs: 22, calories: 200, protein: 17, sugarFree: true },
-      { name: 'Oreo', fat: 6, carbs: 28, calories: 240, protein: 17, sugarFree: true },
-      { name: 'Lotus', fat: 5, carbs: 24, calories: 200, protein: 17, sugarFree: true },
+      { name: 'Lotus', fat: 5, carbs: 22, calories: 200, protein: 17, sugarFree: true },
+      { name: 'Strawberry', fat: 6, carbs: 28, calories: 240, protein: 17, sugarFree: true },
+      { name: 'Oreo', fat: 5, carbs: 24, calories: 200, protein: 17, sugarFree: true },
       // { name: 'Pistachio', fat: 6, carbs: 27, calories: 210, protein: 17, sugarFree: true },
       // { name: 'Mix Berry', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
       // { name: 'Bounty', fat: 4, carbs: 20, calories: 190, protein: 17, sugarFree: true },
@@ -310,17 +309,12 @@
       // { name: 'Caramel', fat: 5, carbs: 24, calories: 210, protein: 17, sugarFree: true },
     ];
     function macroRow(label,v,u){return `<div class="flex justify-between"><span class="text-gray-600">${label}</span><span class="font-semibold">${v}${u}</span></div>`;}
-    const splinePreviewMap = {
-      'Strawberry': 'https://prod.spline.design/xVttJ3y5bYQh2g5U/scene.splinecode',
-      'Oreo': 'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode',
-      'Lotus': 'https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode'
-    };
     function cardTemplate(item){
       const sugar = item.sugarFree ? 'No added sugar' : '';
       return `
       <div class="group rounded-2xl overflow-hidden border border-black/5 bg-white/70 backdrop-blur shadow-sm hover:shadow-lg transition">
-        <div class="aspect-[4/3] w-full flex items-center justify-center">
-          <spline-viewer url="${splinePreviewMap[item.name] || 'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode'}" background="transparent" class="w-full h-full"></spline-viewer>
+        <div class="aspect-[4/3] w-full bg-gradient-to-br from-white via-[#f6f2ec] to-[#ede7df] flex items-center justify-center">
+          <model-viewer src="${item.name.toLowerCase()}.glb" alt="${item.name}" auto-rotate camera-controls disable-zoom style="width:100%; height:100%; background: transparent;"></model-viewer>
         </div>
         <div class="p-4">
           <div class="flex items-start justify-between gap-3">
