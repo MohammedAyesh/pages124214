@@ -119,7 +119,7 @@
       <p class="text-2xl md:text-4xl font-bold text-gray-400/30 italic">“Fuel your strength.”</p>
     </div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" class="absolute inset-0 z-10"></spline-viewer>
+    <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode"></spline-viewer>
 
     <div class="ui-elements">
       <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
@@ -376,108 +376,6 @@
     document.querySelectorAll('a[href="#contact"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openContact();}));
 
 document.addEventListener('DOMContentLoaded',()=>{
-      // === Spline viewer controls (lock rotation, zoom in, smooth switching) ===
-      const spline = document.querySelector('#spline-viewer');
-      if (spline) {
-        // URLs to cycle through
-        const splineUrls = [
-          'https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode',
-          'https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode',
-          'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode'
-        ];
-        let splineIndex = 0;
-        let isSwitching = false;
-        let lastSwitchAt = 0;
-
-        // Lock user interaction with pointer-events (already via class), keep as safety
-        spline.style.pointerEvents = 'none';
-
-        // Ensure zoom-in via scale class; adjust if needed
-        // (Tailwind class already applied: transform scale-125)
-
-        function switchSpline(dir) {
-          if (!spline || isSwitching) return;
-          isSwitching = true;
-          const now = Date.now();
-          const isQuick = now - lastSwitchAt < 500; // quick successive press ⇒ fast crossfade
-          lastSwitchAt = now;
-
-          splineIndex = (splineIndex + dir + splineUrls.length) % splineUrls.length;
-          const wrap = document.getElementById('spline-wrap');
-          const startAngle = 0, midAngle = 90, endAngle = 180;
-
-          const doSwap = () => {
-            // Hide viewer while loading to avoid overlap
-            spline.style.opacity = '0';
-            const nextUrl = splineUrls[splineIndex];
-            try { spline.url = nextUrl; } catch(_) {}
-            spline.setAttribute('url', nextUrl);
-            return new Promise(resolve => {
-              const onLoad = () => { spline.removeEventListener('load', onLoad); resolve(); };
-              spline.addEventListener('load', onLoad, { once: true });
-              setTimeout(resolve, 900); // safety
-            });
-          };
-
-          if (isQuick) {
-            // FAST PATH: crossfade only (no flip)
-            const out = wrap.animate([
-              { opacity: 1 },
-              { opacity: 0 }
-            ], { duration: 140, easing: 'ease-out', fill: 'forwards' });
-
-            out.finished.then(doSwap)
-              .then(() => wrap.animate([
-                { opacity: 0 },
-                { opacity: 1 }
-              ], { duration: 160, easing: 'ease-in', fill: 'forwards' }).finished)
-              .catch(() => {
-                wrap.style.opacity = '0';
-                doSwap().then(() => { wrap.style.opacity = '1'; });
-              })
-              .finally(() => { isSwitching = false; });
-            return;
-          }
-
-          // NORMAL PATH: 180° flip + fade
-          const out = wrap.animate([
-            { transform: `rotateY(${startAngle}deg) scale(1.25)`, opacity: 1 },
-            { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0 }
-          ], { duration: 280, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'forwards' });
-
-          out.finished.then(doSwap)
-            .then(() => wrap.animate([
-              { transform: `rotateY(${midAngle}deg) scale(1.25)`, opacity: 0 },
-              { transform: `rotateY(${endAngle}deg) scale(1.25)`, opacity: 1 }
-            ], { duration: 300, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'forwards' }).finished)
-            .then(() => { wrap.style.transform = 'rotateY(0deg) scale(1.25)'; })
-            .catch(() => {
-              wrap.style.opacity = '0';
-              doSwap().then(() => { wrap.style.opacity = '1'; });
-            })
-            .finally(() => { isSwitching = false; });
-        }
-
-        const nextBtn = document.getElementById('next-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        function resetAuto() { stopSplineAutoplay(); startSplineAutoplay(); }
-        nextBtn && nextBtn.addEventListener('click', () => { switchSpline(1); resetAuto(); });
-        prevBtn && prevBtn.addEventListener('click', () => { switchSpline(-1); resetAuto(); });
-
-        let splineAutoTimer = null;
-        function startSplineAutoplay(interval = 5000) {
-          stopSplineAutoplay();
-          splineAutoTimer = setInterval(() => {
-            // Advance to next cup with the same smooth 180° flip
-            switchSpline(1);
-          }, interval);
-        }
-        function stopSplineAutoplay() {
-          if (splineAutoTimer) { clearInterval(splineAutoTimer); splineAutoTimer = null; }
-        }
-        // Start rotating between the three cups automatically
-        startSplineAutoplay();
-      }
       return; // Using Spline viewer; skip local Three.js scene setup
       const productData=[
         { name:'Almond',   mainModel:'browncup.glb', surroundingModel:'walnuts.glb', color:'#ff3b3b', theme:{ bg:'#ffe8e6', text:'#0b0b0b', accent:'#ff3b3b', letters:'#ff0033', ctaText:'#ffffff' } },
