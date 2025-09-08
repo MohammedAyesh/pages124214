@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,10 +34,34 @@
   <link rel="preload" as="fetch" href="walnuts.glb" crossorigin>
   <link rel="preload" as="fetch" href="petals.glb" crossorigin>
   <style>
-    body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); overflow: hidden; }
+    html, body {
+      scroll-behavior: smooth;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); }
+    body, main {
+      overflow-y: scroll;
+      padding-top: 100vh; /* Ensures content starts below the fixed Spline viewer */
+      height: auto;
+    }
+    section { margin-bottom: 4rem; }
     :root{ --bg1:#f6efe6; --bg2:#e8d4b0; --fg:#0b0b0b; --accent:#111111; --letters:#111111; --cta-text:#ffffff; }
-    body, #products-page, #about-page, #contact-page { background-image: linear-gradient(180deg, var(--bg1), var(--bg2)) !important; background-color: var(--bg1) !important; }
-    #products-page .sticky, #about-page .sticky, #contact-page .sticky { background-image: linear-gradient(180deg, color-mix(in srgb, var(--bg1) 85%, white), color-mix(in srgb, var(--bg2) 85%, white)) !important; background-color: transparent !important; }
+    body, #products-page, #about-page, #contact-page {
+      background-image: url('background.png') !important;
+      background-size: cover !important;
+      background-position: top center !important;
+      background-attachment: fixed !important;
+      background-repeat: no-repeat !important;
+      background-color: var(--bg1) !important;
+    }
+    @media (max-width: 640px) {
+      body, #products-page, #about-page, #contact-page {
+        background-image: url('background-mobile.png') !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+      }
+    }
+    #products-page .sticky, #about-page .sticky, #contact-page .sticky { background-image: none !important; background-color: transparent !important; }
     .ui-elements button, #about-shop-btn { border: none; }
     .background-text {
       font-size: 18vw; font-weight: 900; position: absolute; top: 50%; left: 50%;
@@ -54,9 +79,51 @@
     }
     .nav-arrow:hover { background:#fff; transform: translateY(-50%) scale(1.1); }
     .nav-arrow.left { left:15%; } .nav-arrow.right { right:15%; }
-    .ui-elements { position:absolute; bottom: calc(env(safe-area-inset-bottom, 0) + 16px); left:50%; transform: translateX(-50%); z-index:20; text-align:center; pointer-events:auto; }
-    @media (min-width: 640px){ .ui-elements{ bottom: 10%; } }
-    @media (max-width:768px){ .background-text{ font-size:25vw } .nav-arrow.left{left:5%} .nav-arrow.right{right:5%} }
+    .ui-elements {
+      position: relative;
+      bottom: 5%;
+      z-index: 50;
+      text-align: center;
+      pointer-events: auto;
+      margin-bottom: 40px;
+    }
+    #who-we-are, #our-mission, #our-vision {
+      margin-bottom: 4rem;
+      padding: 2.5rem 2rem;
+      background-color: rgba(255, 255, 255, 0.8);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 20;
+    }
+    #bottom-bar {
+      position: relative;
+      z-index: 20;
+    }
+    @media (max-width: 768px) {
+      .ui-elements { 
+        bottom: 5%;
+      }
+      .background-text {
+        font-size: 18vw;
+      }
+    }
+    @media (max-width: 640px) {
+      body, #products-page, #about-page, #contact-page {
+        background-image: url('background-mobile.png') !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+      }
+      #who-we-are, #our-mission, #our-vision {
+        padding: 1.5rem 1rem;
+      }
+    }
+    @media (min-width: 640px){ .ui-elements{ bottom: 6%; } }
+    @media (max-width:768px){ .nav-arrow.left{left:5%} .nav-arrow.right{right:5%} }
     #spline-wrap { contain: layout paint; }
     .overlay-transition { transition: opacity 0.5s ease; opacity: 0; pointer-events: none; }
     .overlay-transition.active { opacity: 1; pointer-events: auto; }
@@ -64,6 +131,76 @@
     .wm-layer { position:absolute; inset:0; pointer-events:none; user-select:none; z-index:0; }
     .wm-text { font-weight:900; color: rgba(0,0,0,0.06); line-height:0.9; letter-spacing:-0.02em; }
     @media (max-width: 768px){ .wm-text{ font-size:18vw !important; } }
+    /* Spline container: fixed, full viewport, non-interactive */
+    #spline-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 15;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none; /* Ensure it doesn't block interactions */
+    }
+    #spline-container .spline-viewer {
+      width: 100%;
+      height: 100%;
+    }
+    /* Ensure bottom bar does not restrict height */
+    #bottom-bar {
+      margin-top: 4rem;
+    }
+    /* Brand nav styling to match QUDRA vibe */
+    .brand-nav a{ font-family: 'Inter', sans-serif; font-weight:900; letter-spacing:0.18em; text-transform:uppercase; }
+
+    /* Product Cups Section */
+    .product-cups-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 40px;
+    }
+    .product-cup iframe {
+      width: 400px;
+      height: 400px;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+    }
+    .product-cup iframe:hover {
+      transform: scale(1.1);
+    }
+    .shop-btn-container {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .shop-now-btn {
+      padding: 15px 30px;
+      background-color: #000;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 30px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .shop-now-btn:hover {
+      background-color: #444;
+    }
+    @media (max-width: 900px) {
+      .product-cups-container {
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+      }
+      .product-cup iframe {
+        width: 90vw;
+        max-width: 320px;
+        height: 320px;
+      }
+    }
   </style>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
@@ -72,13 +209,13 @@
 
   <!-- Header -->
   <header class="absolute top-0 left-0 right-0 z-20 px-4 sm:px-8 md:px-16 py-6">
-    <div class="container mx-auto flex justify-between items-center">
+    <div class="container mx-auto flex justify-between items-center relative">
       <div class="tracking-wider">
         <a href="#" aria-label="Qudra home">
           <img src="qudras.png" alt="Qudra" class="h-16 w-auto" />
         </a>
       </div>
-      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+      <nav class="hidden md:flex items-center space-x-10 brand-nav text-lg md:text-xl text-gray-900 md:absolute md:right-0 md:top-2">
         <a href="#" id="nav-products" class="hover:text-gray-900 transition-colors">Products</a>
         <a href="#" id="nav-about" class="hover:text-gray-900 transition-colors">About</a>
         <a href="#" id="nav-contact" class="hover:text-gray-900 transition-colors">Contact</a>
@@ -103,7 +240,7 @@
         </svg>
       </button>
     </div>
-    <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
+    <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl brand-nav">
       <a href="#" class="nav-link" id="mobile-products">Products</a>
       <a href="#" class="nav-link" id="mobile-about">About</a>
       <a href="#" class="nav-link">Partnership</a>
@@ -112,33 +249,77 @@
   </div>
 
   <!-- Main -->
-  <main class="relative w-full h-screen">
+  <main class="relative w-full">
+    <!-- Spline Viewer Container (fixed, non-interactive) -->
+  
     <h1 id="background-text" class="background-text"></h1>
-    <!-- Watermark background (hero) -->
-    <div class="wm-layer">
-      <div class="wm-text absolute left-6 bottom-[12%] text-[14vw]">NO ADDED<br/>SUGAR</div>
-      <div class="wm-text absolute right-6 top-[18%] text-[9vw] rotate-[-12deg]">NO ARTIFICIAL<br/>INGREDIENTS!</div>
-      <div class="wm-text absolute right-8 bottom-[10%] text-[10vw]">&lt; 250 KCAL</div>
-      <div class="wm-text absolute right-6 top-6 text-[8vw]">⚡</div>
-    </div>
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
-    <div class="absolute inset-0 z-10 flex items-start justify-center pt-32 md:pt-44 lg:pt-56">
-      <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-[90vw] h-[65vh] max-w-[1200px] max-h-[11000px]"></spline-viewer>
-    </div>
-    <div class="ui-elements">
-      <button id="shop-now-btn" class="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">Shop Now</button>
-    </div>
+    <!-- Product Cups Section -->
+    <section id="cup-carousel" class="py-16 px-4 text-center">
+      <h2 class="text-3xl font-bold text-gray-900">Our Cups</h2>
+      <p class="mt-4 text-lg text-gray-700">Discover the variety of cups we offer!</p>
+      <div class="product-cups-container">
+       
+        <div class="product-cup">
+          <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
+        </div>
+        <div class="product-cup">
+          <spline-viewer url="https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
+        </div>
+        <div class="product-cup">
+          <spline-viewer url="https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
+        </div>
+       
+      </div>
+      <div class="shop-btn-container">
+        <button id="shop-now-btn" class="shop-now-btn">Shop Now</button>
+      </div>
+    </section>
+  <script>
+    // ===== Cup Carousel Functionality =====
+    let currentCupIndex = 0;
+    const cupFrames = [
+      'https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode',
+      'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode',
+      'https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode',
+    ];
+    function updateCup() {
+      const cupEls = document.querySelectorAll('.product-cup');
+      cupEls.forEach((cupFrame, index) => {
+        cupFrame.style.display = index === currentCupIndex ? 'block' : 'none';
+      });
+    }
+    document.getElementById('next-cup')?.addEventListener('click', () => {
+      currentCupIndex = (currentCupIndex + 1) % cupFrames.length;
+      updateCup();
+    });
+    document.getElementById('prev-cup')?.addEventListener('click', () => {
+      currentCupIndex = (currentCupIndex - 1 + cupFrames.length) % cupFrames.length;
+      updateCup();
+    });
+    // Initialize the first cup
+    document.addEventListener('DOMContentLoaded', updateCup);
+  </script>
+
+    <!-- Scrollable Sections -->
+    <section id="who-we-are" class="py-16 px-4 text-center">
+      <h2 class="text-3xl font-bold text-gray-900">Who We Are</h2>
+      <p class="mt-4 text-lg text-gray-700">We are a clean, innovative company focused on creating high-quality protein-based products without artificial ingredients.</p>
+    </section>
+    <section id="our-mission" class="py-16 px-4 bg-gray-100 text-center">
+      <h2 class="text-3xl font-bold text-gray-900">Our Mission</h2>
+      <p class="mt-4 text-lg text-gray-700">Our mission is to offer delicious and nutritious protein puddings that fit seamlessly into your daily lifestyle.</p>
+    </section>
+    <section id="our-vision" class="py-16 px-4 text-center">
+      <h2 class="text-3xl font-bold text-gray-900">Our Vision</h2>
+      <p class="mt-4 text-lg text-gray-700">We envision a world where healthy and convenient nutrition is available for everyone, everywhere.</p>
+    </section>
+    <section id="bottom-bar" class="bg-black text-white py-4 text-center">
+      <p class="text-sm">© 2025 Qudra. All Rights Reserved.</p>
+    </section>
   </main>
 
   <!-- Products Overlay -->
   <section id="products-page" class="overlay-transition fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-    <!-- Watermark background (overlay) -->
-    <div class="wm-layer">
-      <div class="wm-text absolute left-6 bottom-[12%] text-[14vw]">NO ADDED<br/>SUGAR</div>
-      <div class="wm-text absolute right-6 top-[18%] text-[9vw] rotate-[-12deg]">NO ARTIFICIAL<br/>INGREDIENTS!</div>
-      <div class="wm-text absolute right-8 bottom-[10%] text-[10vw]">&lt; 250 KCAL</div>
-      <div class="wm-text absolute right-6 top-6 text-[8vw]">⚡</div>
-    </div>
     <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5" style="position:relative; z-index:1">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
         <button id="products-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
@@ -167,13 +348,6 @@
 
   <!-- About Overlay -->
   <section id="about-page" class="overlay-transition fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-    <!-- Watermark background (overlay) -->
-    <div class="wm-layer">
-      <div class="wm-text absolute left-6 bottom-[12%] text-[14vw]">NO ADDED<br/>SUGAR</div>
-      <div class="wm-text absolute right-6 top-[18%] text-[9vw] rotate-[-12deg]">NO ARTIFICIAL<br/>INGREDIENTS!</div>
-      <div class="wm-text absolute right-8 bottom-[10%] text-[10vw]">&lt; 250 KCAL</div>
-      <div class="wm-text absolute right-6 top-6 text-[8vw]">⚡</div>
-    </div>
     <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5" style="position:relative; z-index:1">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
         <button id="about-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
@@ -251,13 +425,6 @@
 
   <!-- Contact Overlay -->
   <section id="contact-page" class="overlay-transition fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-    <!-- Watermark background (overlay) -->
-    <div class="wm-layer">
-      <div class="wm-text absolute left-6 bottom-[12%] text-[14vw]">NO ADDED<br/>SUGAR</div>
-      <div class="wm-text absolute right-6 top-[18%] text-[9vw] rotate-[-12deg]">NO ARTIFICIAL<br/>INGREDIENTS!</div>
-      <div class="wm-text absolute right-8 bottom-[10%] text-[10vw]">&lt; 250 KCAL</div>
-      <div class="wm-text absolute right-6 top-6 text-[8vw]">⚡</div>
-    </div>
     <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5" style="position:relative; z-index:1">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
         <button id="contact-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
@@ -295,7 +462,7 @@
           <ul class="mt-3 space-y-2 text-sm text-gray-700">
             <li>• Email: <a href="mailto:mayesh@noblesproperties.com" class="underline">mayesh@noblesproperties.com</a></li>
             <li>• Phone: <a href="tel:+17039758727" class="underline">+1 (703) 975-8727</a></li>
-            <li>• Instagram: <a href="#" class="underline">@qudra</a></li>
+            <li>• Instagram: <a href="#" class="underline">@qudraprotein</a></li>
             <li>• For wholesale, include expected weekly volume and delivery location.</li>
           </ul>
         </div>
@@ -666,3 +833,4 @@ self.addEventListener('fetch', event => {
   </script>
 </body>
 </html>
+```
