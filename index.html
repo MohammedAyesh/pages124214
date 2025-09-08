@@ -40,7 +40,7 @@
     body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); }
     body, main {
       overflow-y: scroll;
-      padding-top: 100vh; /* Ensures content starts below the fixed Spline viewer */
+      padding-top: 0; /* Removed the padding that was pushing the content down */
       height: auto;
     }
     section { margin-bottom: 4rem; }
@@ -250,15 +250,16 @@
 
   <!-- Main -->
   <main class="relative w-full">
-    <!-- Spline Viewer Container (fixed, non-interactive) -->
-  
-    <h1 id="background-text" class="background-text"></h1>
-    <!-- Product Cups Section -->
+    <!-- Our Cups Section moved to the very top -->
     <section id="cup-carousel" class="py-16 px-4 text-center">
       <h2 class="text-3xl font-bold text-gray-900">Our Cups</h2>
       <p class="mt-4 text-lg text-gray-700">Discover the variety of cups we offer!</p>
       <div class="product-cups-container">
-       
+        <div class="nav-arrow left" id="prev-cup">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </div>
         <div class="product-cup">
           <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
         </div>
@@ -268,12 +269,17 @@
         <div class="product-cup">
           <spline-viewer url="https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
         </div>
-       
+        <div class="nav-arrow right" id="next-cup">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
       </div>
       <div class="shop-btn-container">
         <button id="shop-now-btn" class="shop-now-btn">Shop Now</button>
       </div>
     </section>
+    <h1 id="background-text" class="background-text"></h1>
   <script>
     // ===== Cup Carousel Functionality =====
     let currentCupIndex = 0;
@@ -833,4 +839,4 @@ self.addEventListener('fetch', event => {
   </script>
 </body>
 </html>
-```
+``` 
