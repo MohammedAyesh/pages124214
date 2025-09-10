@@ -39,6 +39,9 @@
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); }
     body, main {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;  /* Ensures the body takes the full viewport height */
       overflow-y: scroll;
       padding-top: 0; /* Removed the padding that was pushing the content down */
       height: auto;
@@ -87,7 +90,19 @@
       pointer-events: auto;
       margin-bottom: 40px;
     }
-    #who-we-are, #our-mission, #our-vision {
+    #who-we-are {
+      margin-bottom: 2rem;
+      padding: 1.5rem 1rem;  /* Decrease padding */
+      max-width: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 20;
+    }
+    #our-mission, #our-vision {
       margin-bottom: 4rem;
       padding: 2.5rem 2rem;
       background-color: rgba(255, 255, 255, 0.8);
@@ -99,9 +114,25 @@
       position: relative;
       z-index: 20;
     }
+    .text-lg {
+      font-size: 1.125rem;
+    }
+
+    #who-we-are .flex-col img {
+      width: 120px; /* Ensure the logo is appropriately sized */
+    }
     #bottom-bar {
-      position: relative;
-      z-index: 20;
+      position: fixed;
+      left: 0;
+      bottom: -0px  ;
+      width: 100%;
+      background-color: black;
+      color: white;
+      text-align: center;
+      z-index: 0;
+      margin: 0;
+      box-sizing: border-box;
+      margin-top: auto;
     }
     @media (max-width: 768px) {
       .ui-elements { 
@@ -148,8 +179,16 @@
     }
     /* Ensure bottom bar does not restrict height */
     #bottom-bar {
-      margin-top: 4rem;
-    }
+  position: relative; /* Change from fixed to relative */
+  left: 0;
+  width: 100%;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  margin-top: auto; /* Ensures it stays at the bottom */
+  box-sizing: border-box;
+}
     /* Brand nav styling to match QUDRA vibe */
     .brand-nav a{ font-family: 'Inter', sans-serif; font-weight:900; letter-spacing:0.18em; text-transform:uppercase; }
 
@@ -307,18 +346,31 @@
   </script>
 
     <!-- Scrollable Sections -->
-    <section id="who-we-are" class="py-16 px-4 text-center">
-      <h2 class="text-3xl font-bold text-gray-900">Who We Are</h2>
-      <p class="mt-4 text-lg text-gray-700">We are a clean, innovative company focused on creating high-quality protein-based products without artificial ingredients.</p>
+    <section id="who-we-are" class="py-8 px-4 text-center">
+      <!-- Logo at the top -->
+      <div class="flex flex-col items-center w-full mb-4">
+      </div>
+      <!-- Main content with logo, text, and cup image side by side on desktop, stacked on mobile -->
+      <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-3xl mx-auto">
+        <!-- Textual content -->
+        <div class="flex-1">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Who We Are</h2>
+          <p class="mt-3 text-base md:text-lg text-gray-700">
+            We are a clean, innovative company focused on creating high-quality protein-based products without artificial ingredients.
+          </p>
+          <p class="mt-4 text-sm md:text-base text-gray-600 font-medium">
+            We are based out of Amman, Jordan.
+          </p>
+        </div>
+        <!-- Lotus Cup image -->
+        <div class="flex-shrink-0 mt-6 md:mt-0 flex flex-col items-center">
+            <div class="spline-cup-container">
+                <spline-viewer url="https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode" background="transparent" class="w-60 h-80"></spline-viewer>
+              </div>        </div>
+      </div>
     </section>
-    <section id="our-mission" class="py-16 px-4 bg-gray-100 text-center">
-      <h2 class="text-3xl font-bold text-gray-900">Our Mission</h2>
-      <p class="mt-4 text-lg text-gray-700">Our mission is to offer delicious and nutritious protein puddings that fit seamlessly into your daily lifestyle.</p>
-    </section>
-    <section id="our-vision" class="py-16 px-4 text-center">
-      <h2 class="text-3xl font-bold text-gray-900">Our Vision</h2>
-      <p class="mt-4 text-lg text-gray-700">We envision a world where healthy and convenient nutrition is available for everyone, everywhere.</p>
-    </section>
+   
+    <!-- Bottom Bar -->
     <section id="bottom-bar" class="bg-black text-white py-4 text-center">
       <p class="text-sm">© 2025 Qudra. All Rights Reserved.</p>
     </section>
