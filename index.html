@@ -1,894 +1,205 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Product Showcase</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <!-- Performance: preconnect & preload -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="//fonts.googleapis.com">
-  <link rel="dns-prefetch" href="//fonts.gstatic.com">
-  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Document Text Extractor for Claude</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-top: #1a1a2e;
+            --bg-bottom: #16213e;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
 
-  <!-- Preload critical scripts and decoders -->
-  <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
-  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js">
-  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js">
-  <link rel="preload" as="fetch" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_decoder.wasm" crossorigin>
-  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_wasm_wrapper.js">
-  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_decoder.js">
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-top), var(--bg-bottom));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.6;
+        }
 
-  <!-- Preload GLB assets used on the hero -->
-  <link rel="preload" as="fetch" href="browncup.glb" crossorigin>
-  <link rel="preload" as="fetch" href="lotus.glb" crossorigin>
-  <link rel="preload" as="fetch" href="walnut.glb" crossorigin>
-  <link rel="preload" as="fetch" href="walnuts.glb" crossorigin>
-  <link rel="preload" as="fetch" href="petals.glb" crossorigin>
-  <style>
-    html, body {
-      scroll-behavior: smooth;
-    }
-    body { font-family: 'Inter', sans-serif; background: var(--bg, #f0ebe5); }
-    body, main {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;  /* Ensures the body takes the full viewport height */
-      overflow-y: scroll;
-      padding-top: 0; /* Removed the padding that was pushing the content down */
-      height: auto;
-    }
-    section { margin-bottom: 4rem; }
-    :root{ --bg1:#f6efe6; --bg2:#e8d4b0; --fg:#0b0b0b; --accent:#111111; --letters:#111111; --cta-text:#ffffff; }
-    body, #products-page, #about-page, #contact-page {
-      background-image: url('background.png') !important;
-      background-size: cover !important;
-      background-position: top center !important;
-      background-attachment: fixed !important;
-      background-repeat: no-repeat !important;
-      background-color: var(--bg1) !important;
-    }
-    @media (max-width: 640px) {
-      body, #products-page, #about-page, #contact-page {
-        background-image: url('background-mobile.png') !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-repeat: no-repeat !important;
-      }
-    }
-    #products-page .sticky, #about-page .sticky, #contact-page .sticky { background-image: none !important; background-color: transparent !important; }
-    .ui-elements button, #about-shop-btn { border: none; }
-    .background-text {
-      font-size: 18vw; font-weight: 900; position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%,-50%); white-space: nowrap; user-select: none;
-      z-index: 5; pointer-events: none;
-      color: var(--letters, #111);
-      text-shadow: none;
-      transition: none;
-    }
-    .product-image-container { position:absolute; inset:0; z-index:10; }
-    .nav-arrow {
-      position:absolute; top:50%; transform: translateY(-50%); background:rgba(255,255,255,.8);
-      border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center;
-      cursor:pointer; z-index:20; box-shadow:0 4px 10px rgba(0,0,0,.1); transition: background-color .3s, transform .3s;
-    }
-    .nav-arrow:hover { background:#fff; transform: translateY(-50%) scale(1.1); }
-    .nav-arrow.left { left:15%; } .nav-arrow.right { right:15%; }
-    .ui-elements {
-      position: relative;
-      bottom: 5%;
-      z-index: 50;
-      text-align: center;
-      pointer-events: auto;
-      margin-bottom: 40px;
-    }
-    #who-we-are {
-      margin-bottom: 2rem;
-      padding: 1.5rem 1rem;  /* Decrease padding */
-      max-width: 100%;
-      background-color: rgba(255, 255, 255, 0.8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 20;
-    }
-    #our-mission, #our-vision {
-      margin-bottom: 4rem;
-      padding: 2.5rem 2rem;
-      background-color: rgba(255, 255, 255, 0.8);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 20;
-    }
-    .text-lg {
-      font-size: 1.125rem;
-    }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 40px auto;
+            position: relative;
+        }
 
-    #who-we-are .flex-col img {
-      width: 120px; /* Ensure the logo is appropriately sized */
-    }
-    #bottom-bar {
-      position: fixed;
-      left: 0;
-      bottom: -0px  ;
-      width: 100%;
-      background-color: black;
-      color: white;
-      text-align: center;
-      z-index: 0;
-      margin: 0;
-      box-sizing: border-box;
-      margin-top: auto;
-    }
-    @media (max-width: 768px) {
-      .ui-elements { 
-        bottom: 5%;
-      }
-      .background-text {
-        font-size: 18vw;
-      }
-    }
-    @media (max-width: 640px) {
-      body, #products-page, #about-page, #contact-page {
-        background-image: url('background-mobile.png') !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-repeat: no-repeat !important;
-      }
-      #who-we-are, #our-mission, #our-vision {
-        padding: 1.5rem 1rem;
-      }
-    }
-    @media (min-width: 640px){ .ui-elements{ bottom: 6%; } }
-    @media (max-width:768px){ .nav-arrow.left{left:5%} .nav-arrow.right{right:5%} }
-    #spline-wrap { contain: layout paint; }
-    .overlay-transition { transition: opacity 0.5s ease; opacity: 0; pointer-events: none; }
-    .overlay-transition.active { opacity: 1; pointer-events: auto; }
-    /* Global watermark styles */
-    .wm-layer { position:absolute; inset:0; pointer-events:none; user-select:none; z-index:0; }
-    .wm-text { font-weight:900; color: rgba(0,0,0,0.06); line-height:0.9; letter-spacing:-0.02em; }
-    @media (max-width: 768px){ .wm-text{ font-size:18vw !important; } }
-    /* Spline container: fixed, full viewport, non-interactive */
-    #spline-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 15;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none; /* Ensure it doesn't block interactions */
-    }
-    #spline-container .spline-viewer {
-      width: 100%;
-      height: 100%;
-    }
-    /* Ensure bottom bar does not restrict height */
-    #bottom-bar {
-  position: relative; /* Change from fixed to relative */
-  left: 0;
-  width: 100%;
-  background-color: black;
-  color: white;
-  text-align: center;
-  padding: 20px 0;
-  margin-top: auto; /* Ensures it stays at the bottom */
-  box-sizing: border-box;
-}
-    /* Brand nav styling to match QUDRA vibe */
-    .brand-nav a{ font-family: 'Inter', sans-serif; font-weight:900; letter-spacing:0.18em; text-transform:uppercase; }
+        .glow {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    /* Product Cups Section */
-    .product-cups-container {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      margin-top: 40px;
-    }
-    .product-cup iframe {
-      width: 400px;
-      height: 400px;
-      border: none;
-      border-radius: 10px;
-      transition: transform 0.3s ease;
-    }
-    .product-cup iframe:hover {
-      transform: scale(1.1);
-    }
-    .shop-btn-container {
-      margin-top: 40px;
-      text-align: center;
-    }
-    .shop-now-btn {
-      padding: 15px 30px;
-      background-color: #000;
-      color: #fff;
-      font-weight: bold;
-      border-radius: 30px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .shop-now-btn:hover {
-      background-color: #444;
-    }
-    @media (max-width: 900px) {
-      .product-cups-container {
-        flex-direction: column;
-        gap: 2rem;
-        align-items: center;
-      }
-      .product-cup iframe {
-        width: 90vw;
-        max-width: 320px;
-        height: 320px;
-      }
-    }
-  </style>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.56/build/spline-viewer.js"></script>
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p, li {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+        }
+
+        ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .contact-box {
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            text-align: center;
+        }
+
+        .contact-box p {
+            margin: 0;
+        }
+        
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
-<body class="text-gray-800">
+<body>
+    <div class="glow"></div>
+    <div class="container">
+        <div class="card">
+            <span class="badge">UPDATED EXPLICITLY FOR STORE LAUNCH</span>
+            <h1>Privacy Policy</h1>
+            <div class="subtitle">Effective Date: April 15, 2026 • Document Text Extractor for Claude</div>
 
-  <!-- Header -->
-  <header class="absolute top-0 left-0 right-0 z-20 px-4 sm:px-8 md:px-16 py-6">
-    <div class="container mx-auto flex justify-between items-center relative">
-      <div class="tracking-wider">
-        <a href="#" aria-label="Qudra home">
-          <img src="qudras.png" alt="Qudra" class="h-16 w-auto" />
-        </a>
-      </div>
-      <nav class="hidden md:flex items-center space-x-10 brand-nav text-lg md:text-xl text-gray-900 md:absolute md:right-0 md:top-2">
-        <a href="#" id="nav-products" class="hover:text-gray-900 transition-colors">Products</a>
-        <a href="#" id="nav-about" class="hover:text-gray-900 transition-colors">About</a>
-        <a href="#" id="nav-contact" class="hover:text-gray-900 transition-colors">Contact</a>
-      </nav>
-      <div class="flex items-center space-x-4">
-        <!-- cart removed -->
-        <button id="mobile-menu-button" class="md:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </header>
+            <h2>1. The 100% On-Device Guarantee</h2>
+            <p><strong>Document Text Extractor for Claude</strong> operates entirely inside your own browser window. We intentionally designed this extension using on-device WebAssembly (Tesseract OCR technology) to guarantee your absolute privacy.</p>
+            <ul>
+                <li>No text or image data ever leaves your computer.</li>
+                <li>Everything is processed sequentially on your local machine's memory.</li>
+                <li>We do not communicate with external servers or remote databases.</li>
+            </ul>
 
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full bg-white z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
-    <div class="flex justify-end p-6">
-      <button id="close-mobile-menu">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-    <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl brand-nav">
-      <a href="#" class="nav-link" id="mobile-products">Products</a>
-      <a href="#" class="nav-link" id="mobile-about">About</a>
-      <a href="#" class="nav-link">Partnership</a>
-      <a href="#" class="nav-link" id="mobile-contact">Contact</a>
-    </nav>
-  </div>
+            <h2>2. Information We Do Not Collect</h2>
+            <p>Because of our strictly local architecture, we state emphatically that we <strong>DO NOT</strong> collect, store, transmit, log, or sell any of the following data:</p>
+            <ul>
+                <li>Personally identifiable information (PII)</li>
+                <li>Your chat history or document contents</li>
+                <li>Financial, health, or authentication information</li>
+                <li>Web browsing history or tracking analytics</li>
+            </ul>
 
-  <!-- Main -->
-  <main class="relative w-full">
-    <!-- Our Cups Section moved to the very top -->
-    <section id="cup-carousel" class="py-16 px-4 text-center">
-      <h2 class="text-3xl font-bold text-gray-900">Our Cups</h2>
-      <p class="mt-4 text-lg text-gray-700">Discover the variety of cups we offer!</p>
-      <div class="product-cups-container">
-        <div class="nav-arrow left" id="prev-cup">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </div>
-        <div class="product-cup">
-          <spline-viewer url="https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
-        </div>
-        <div class="product-cup">
-          <spline-viewer url="https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
-        </div>
-        <div class="product-cup">
-          <spline-viewer url="https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode" background="transparent" class="w-full h-full"></spline-viewer>
-        </div>
-        <div class="nav-arrow right" id="next-cup">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </div>
-      </div>
-      <div class="shop-btn-container">
-        <button id="shop-now-btn" class="shop-now-btn">Shop Now</button>
-      </div>
-    </section>
-    <h1 id="background-text" class="background-text"></h1>
-  <script>
-    // ===== Cup Carousel Functionality =====
-    let currentCupIndex = 0;
-    const cupFrames = [
-      'https://prod.spline.design/adkCviuBVbhU9pXP/scene.splinecode',
-      'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode',
-      'https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode',
-    ];
-    function updateCup() {
-      const cupEls = document.querySelectorAll('.product-cup');
-      cupEls.forEach((cupFrame, index) => {
-        cupFrame.style.display = index === currentCupIndex ? 'block' : 'none';
-      });
-    }
-    document.getElementById('next-cup')?.addEventListener('click', () => {
-      currentCupIndex = (currentCupIndex + 1) % cupFrames.length;
-      updateCup();
-    });
-    document.getElementById('prev-cup')?.addEventListener('click', () => {
-      currentCupIndex = (currentCupIndex - 1 + cupFrames.length) % cupFrames.length;
-      updateCup();
-    });
-    // Initialize the first cup
-    document.addEventListener('DOMContentLoaded', updateCup);
-  </script>
+            <h2>3. How We Use Permissions</h2>
+            <p>Our extension asks for the strict minimum permissions necessary for it to function over the `claude.ai` and `anthropic.com` networks:</p>
+            <ul>
+                <li><strong>Host Permissions:</strong> We only request access to Claude's domains to place our interactive highlight borders on top of your document previews, and to legitimately bypass browser constraints when reading your images locally into our offline OCR engine.</li>
+                <li><strong>Offscreen Document:</strong> We use Chrome's isolated "offscreen" ecosystem strictly to run the heavy math for image text-extraction without slowing down your active chat experience.</li>
+            </ul>
 
-    <!-- Scrollable Sections -->
-    <section id="who-we-are" class="py-8 px-4 text-center">
-      <!-- Logo at the top -->
-      <div class="flex flex-col items-center w-full mb-4">
-      </div>
-      <!-- Main content with logo, text, and cup image side by side on desktop, stacked on mobile -->
-      <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-3xl mx-auto">
-        <!-- Textual content -->
-        <div class="flex-1">
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Who We Are</h2>
-          <p class="mt-3 text-base md:text-lg text-gray-700">
-            We are a clean, innovative company focused on creating high-quality protein-based products without artificial ingredients.
-          </p>
-          <p class="mt-4 text-sm md:text-base text-gray-600 font-medium">
-            We are based out of Amman, Jordan.
-          </p>
-        </div>
-        <!-- Lotus Cup image -->
-        <div class="flex-shrink-0 mt-6 md:mt-0 flex flex-col items-center">
-            <div class="spline-cup-container">
-                <spline-viewer url="https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode" background="transparent" class="w-60 h-80"></spline-viewer>
-              </div>        </div>
-      </div>
-    </section>
-   
-    <!-- Bottom Bar -->
-    <section id="bottom-bar" class="bg-black text-white py-4 text-center">
-      <p class="text-sm">© 2025 Qudra. All Rights Reserved.</p>
-    </section>
-  </main>
+            <h2>4. Third-Party Services</h2>
+            <p>This extension exists solely to augment the user interface of <em>Claude</em> (an Anthropic service). When using this extension, you inherently remain subject to the overarching Privacy Policies and Terms of Service outlined by Anthropic, LLC. We act exclusively as a local software overlay and filter.</p>
 
-  <!-- Products Overlay -->
-  <section id="products-page" class="overlay-transition fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-    <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5" style="position:relative; z-index:1">
-      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
-        <button id="products-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
-          Back
-        </button>
-        <h2 class="text-xl font-bold tracking-tight text-gray-900">Products</h2>
-        <div class="w-10"></div>
-      </div>
-    </div>
+            <h2>5. Changes to This Policy</h2>
+            <p>If we ever introduce radically different technology to our extension that alters this strictly local on-device paradigm, we will notify users through an extension update and revise this page prior to any active changes.</p>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-8" style="position:relative; z-index:1">
-      <div class="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <input id="catalog-search" type="text" placeholder="Search flavors…" class="w-full sm:w-96 rounded-full border border-black/10 bg-white/80 backdrop-blur px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"/>
-        <div class="flex flex-wrap gap-2 text-sm">
-          <button data-filter="all" class="filter-chip px-3 py-1 rounded-full bg-black/80 text-white">All</button>
-          <button data-filter="lowfat" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">Low Fat ≤5g</button>
-          <button data-filter="≤200kcal" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">≤200 kcal</button>
-          <button data-filter="nosugar" class="filter-chip px-3 py-1 rounded-full bg-white text-gray-800 border border-black/10">No added sugar</button>
-        </div>
-      </div>
-
-      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16"></div>
-    </div>
-  </section>
-
-  <!-- About Overlay -->
-  <section id="about-page" class="overlay-transition fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-    <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5" style="position:relative; z-index:1">
-      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
-        <button id="about-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
-          Back
-        </button>
-        <h2 class="text-xl font-bold tracking-tight text-gray-900">About Qudra</h2>
-        <div class="w-10"></div>
-      </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-10" style="position:relative; z-index:1">
-      <div class="grid md:grid-cols-2 gap-10 items-start">
-        <div>
-          <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">Qudra: power, done clean.</h1>
-          <p class="mt-4 text-gray-700 text-base md:text-lg">Qudra (قدرة) means <span class="font-semibold">ability / capacity</span>—the strength to get things done. That’s the whole point: a protein pudding that tastes great, keeps macros honest, and skips the junk.</p>
-          <div class="mt-6 flex flex-wrap gap-3 text-sm">
-            <span class="px-3 py-1 rounded-full bg-white border border-black/10">No added sugar</span>
-            <span class="px-3 py-1 rounded-full bg-white border border-black/10">~17g protein / cup</span>
-            <span class="px-3 py-1 rounded-full bg-white border border-black/10">190–250 kcal</span>
-            <span class="px-3 py-1 rounded-full bg-white border border-black/10">4–6g fat · 20–27g carbs</span>
-          </div>
-        </div>
-        <div class="bg-white/60 rounded-3xl border border-black/5 p-6">
-          <h3 class="text-lg font-bold text-gray-900">What we make</h3>
-          <ul class="mt-3 space-y-2 text-gray-700 text-sm">
-            <li>• Thick, spoonable puddings in flavors you actually want (Pistachio, Dark Chocolate, Lotus, Snickers, and more).</li>
-            <li>• Macros that are consistent across flavors, so picking a taste doesn’t wreck your plan.</li>
-            <li>• Built for daily use: gym days, busy days, and everything in between.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="mt-12 grid md:grid-cols-3 gap-6">
-        <div class="rounded-2xl bg-white/70 border border-black/5 p-6"><h4 class="font-bold text-gray-900">Taste first</h4><p class="mt-2 text-sm text-gray-700">If it doesn’t taste good, you won’t eat it. We build flavor and texture before anything else.</p></div>
-        <div class="rounded-2xl bg-white/70 border border-black/5 p-6"><h4 class="font-bold text-gray-900">Straight macros</h4><p class="mt-2 text-sm text-gray-700">Clear labels. Real serving sizes. No games. Check the cup—what you see is what you get.</p></div>
-        <div class="rounded-2xl bg-white/70 border border-black/5 p-6"><h4 class="font-bold text-gray-900">Clean standards</h4><p class="mt-2 text-sm text-gray-700">No added sugar. Quality ingredients. Made in controlled kitchens with cold-chain handling.</p></div>
-      </div>
-
-      <div class="mt-12 grid md:grid-cols-2 gap-8">
-        <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
-          <h4 class="font-bold text-gray-900">Ingredients & allergens</h4>
-          <ul class="mt-3 space-y-2 text-sm text-gray-700">
-            <li>• Dairy-based recipes; some flavors may include nuts or biscuits.</li>
-            <li>• Contains milk. Nut flavors contain tree nuts. Some flavors may contain gluten (e.g., biscuit-based).</li>
-            <li>• Always read the flavor label for the exact ingredient list.</li>
-          </ul>
-        </div>
-        <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
-          <h4 class="font-bold text-gray-900">Storage & handling</h4>
-          <ul class="mt-3 space-y-2 text-sm text-gray-700">
-            <li>• Keep refrigerated (0–5°C / 32–41°F). Do not freeze.</li>
-            <li>• Best enjoyed chilled. Check the date on the lid for freshness.</li>
-            <li>• Transport in a cooler when you’re on the move.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="mt-12">
-        <h3 class="text-lg font-bold text-gray-900">FAQ</h3>
-        <div class="mt-4 grid md:grid-cols-2 gap-6 text-sm text-gray-700">
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">Is there added sugar?</p><p class="mt-1">No added sugar. Sweetness comes from the recipe ingredients. Always check your cup’s label.</p></div>
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">Is it halal?</p><p class="mt-1">We source halal-friendly ingredients and avoid alcohol-based flavor carriers. For official certification status, see the label or contact us.</p></div>
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">When should I eat it?</p><p class="mt-1">Anytime you need protein: post-workout, breakfast, late night. It’s built for daily use.</p></div>
-          <div class="rounded-2xl bg-white/70 border border-black/5 p-5"><p class="font-semibold">What’s the shelf life?</p><p class="mt-1">Varies by flavor and batch. Always follow the date on the lid and keep it cold.</p></div>
-        </div>
-      </div>
-
-      <div class="mt-12 flex items-center gap-3">
-        <button id="about-shop-btn" class="px-6 py-3 rounded-full bg-black text-white font-semibold hover:bg-black/90">Shop Products</button>
-        <a href="#contact" class="text-sm text-gray-700 hover:text-gray-900">Questions? Contact us</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact Overlay -->
-  <section id="contact-page" class="overlay-transition fixed inset-0 z-50 bg-[#f0ebe5] overflow-y-auto">
-    <div class="sticky top-0 z-10 bg-[#f0ebe5]/90 backdrop-blur border-b border-black/5" style="position:relative; z-index:1">
-      <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-4 flex items-center justify-between">
-        <button id="contact-close" class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414 3.707 13.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0L12.707 13.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
-          Back
-        </button>
-        <h2 class="text-xl font-bold tracking-tight text-gray-900">Contact</h2>
-        <div class="w-10"></div>
-      </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-10" style="position:relative; z-index:1">
-      <div class="grid md:grid-cols-2 gap-10">
-        <div class="rounded-2xl bg-white/70 border border-black/5 p-6">
-          <h3 class="text-lg font-bold text-gray-900">Talk to us</h3>
-          <p class="mt-2 text-sm text-gray-700">Questions, partnerships, wholesale, or custom flavors—drop a line.</p>
-          <form id="contact-form" class="mt-4 space-y-3" action="mailto:mayesh@noblesproperties.com?subject=Contact%20from%20Qudra%20website" method="post" enctype="text/plain">
-            <div>
-              <label class="block text-sm text-gray-700">Name</label>
-              <input type="text" name="Name" required class="mt-1 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/10"/>
+            <div class="contact-box">
+                <p>Have privacy concerns? Open an issue on GitHub or reach out to the developer directly via the Chrome Web Store support pane.</p>
             </div>
-            <div>
-              <label class="block text-sm text-gray-700">Email</label>
-              <input type="email" name="Email" required class="mt-1 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/10"/>
-            </div>
-            <div>
-              <label class="block text-sm text-gray-700">Message</label>
-              <textarea rows="5" name="Message" required class="mt-1 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/10"></textarea>
-            </div>
-            <button type="submit" class="mt-2 px-5 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-black/90">Send</button>
-          </form>
         </div>
-        <div class="rounded-2xl bg-white/60 border border-black/5 p-6">
-          <h3 class="text-lg font-bold text-gray-900">Details</h3>
-          <ul class="mt-3 space-y-2 text-sm text-gray-700">
-            <li>• Email: <a href="mailto:mayesh@noblesproperties.com" class="underline">mayesh@noblesproperties.com</a></li>
-            <li>• Phone: <a href="tel:+17039758727" class="underline">+1 (703) 975-8727</a></li>
-            <li>• Instagram: <a href="#" class="underline">@qudraprotein</a></li>
-            <li>• For wholesale, include expected weekly volume and delivery location.</li>
-          </ul>
-        </div>
-        <div class="mt-6 rounded-2xl bg-white/60 border border-black/5 p-6">
-          <h3 class="text-lg font-bold text-gray-900">What we do</h3>
-          <ul class="mt-3 space-y-2 text-sm text-gray-700">
-            <li>• Ready-to-eat high‑protein puddings with clean macros.</li>
-            <li>• Wholesale supply for gyms, cafés, and retailers.</li>
-            <li>• Event and catering batches with cold‑chain handling.</li>
-            <li>• Partnerships and private‑label collaborations.</li>
-            <li>• Custom flavors by request (minimums apply).</li>
-          </ul>
-        </div>
-      </div>
     </div>
-  </section>
-
-  <script>
-    // ===== Catalog (Products overlay) =====
-    const catalog = [
-      { name: 'Strawberry', fat: 5, carbs: 22, calories: 200, protein: 17, sugarFree: true },
-      { name: 'Oreo', fat: 6, carbs: 28, calories: 240, protein: 17, sugarFree: true },
-      { name: 'Lotus', fat: 5, carbs: 24, calories: 200, protein: 17, sugarFree: true },
-      // { name: 'Pistachio', fat: 6, carbs: 27, calories: 210, protein: 17, sugarFree: true },
-      // { name: 'Mix Berry', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
-      // { name: 'Bounty', fat: 4, carbs: 20, calories: 190, protein: 17, sugarFree: true },
-      // { name: 'Ferrero Rocher', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
-      // { name: 'Dark Chocolate', fat: 5, carbs: 24, calories: 203, protein: 17, sugarFree: true },
-      // { name: 'Snickers', fat: 6, carbs: 27, calories: 250, protein: 17, sugarFree: true },
-      // { name: 'Caramel', fat: 5, carbs: 24, calories: 210, protein: 17, sugarFree: true },
-    ];
-    const splinePreviewMap = {
-      'Strawberry': 'https://prod.spline.design/xVttJ3y5bYQh2g5U/scene.splinecode',
-      'Oreo': 'https://prod.spline.design/S4fpwad3xlL-sHiR/scene.splinecode',
-      'Lotus': 'https://prod.spline.design/Puif9p18cqUEdjb9/scene.splinecode'
-    };
-    function macroRow(label,v,u){return `<div class="flex justify-between"><span class="text-gray-600">${label}</span><span class="font-semibold">${v}${u}</span></div>`;}
-    function cardTemplate(item){
-      const sugar = item.sugarFree ? 'No added sugar' : '';
-      return `
-      <div class="group rounded-2xl overflow-hidden border border-black/5 bg-white/70 backdrop-blur shadow-sm hover:shadow-lg transition">
-        <div class="aspect-[4/3] w-full bg-gradient-to-br from-white via-[#f6f2ec] to-[#ede7df] flex items-center justify-center">
-          <spline-viewer url="${splinePreviewMap[item.name]}" background="transparent" class="w-full h-full"></spline-viewer>
-        </div>
-        <div class="p-4">
-          <div class="flex items-start justify-between gap-3">
-            <h3 class="text-lg font-bold text-gray-900">${item.name}</h3>
-            <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">${sugar}</span>
-          </div>
-          <div class="mt-3 space-y-1 text-sm">
-            ${macroRow('Fat',item.fat,'g')}
-            ${macroRow('Carbs',item.carbs,'g')}
-            ${macroRow('Calories',item.calories,'')}
-            ${macroRow('Protein',item.protein,'g')}
-          </div>
-          <div class="mt-4 flex items-center justify-between">
-            <button class="px-4 py-2 text-sm rounded-full bg-black text-white hover:bg-black/90">Select</button>
-            <span class="text-xs text-gray-500">~${(item.protein*4 + item.carbs*4 + item.fat*9)} kcal (computed)</span>
-          </div>
-        </div>
-      </div>`;
-    }
-    function renderCatalog(list){ document.getElementById('catalog-grid').innerHTML = list.map(cardTemplate).join(''); }
-    const searchEl=document.getElementById('catalog-search'); const chips=Array.from(document.querySelectorAll('.filter-chip'));
-    function applyFilters(){
-      const q=(searchEl.value||'').toLowerCase();
-      const active=chips.find(c=>c.classList.contains('bg-black/80'))?.dataset.filter||'all';
-      const filtered=catalog.filter(it=>{
-        const nameMatch=it.name.toLowerCase().includes(q);
-        let pass=true; if(active==='lowfat') pass=it.fat<=5; if(active==='≤200kcal') pass=it.calories<=200; if(active==='nosugar') pass=!!it.sugarFree;
-        return nameMatch && pass;
-      });
-      renderCatalog(filtered);
-    }
-    searchEl?.addEventListener('input',applyFilters);
-    chips.forEach(ch=>ch.addEventListener('click',()=>{chips.forEach(c=>c.classList.remove('bg-black/80','text-white'));chips.forEach(c=>c.classList.add('bg-white','text-gray-800'));ch.classList.remove('bg-white','text-gray-800');ch.classList.add('bg-black/80','text-white');applyFilters();}));
-
-    // Global flag so overlays can pause hero spin without scope mess
-    let isTransitioning = false;
-
-    // Mobile menu open/close
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileOpenBtn = document.getElementById('mobile-menu-button');
-    const mobileCloseBtn = document.getElementById('close-mobile-menu');
-    function openMobileMenu(){ mobileMenu?.classList.remove('-translate-x-full'); }
-    function closeMobileMenu(){ mobileMenu?.classList.add('-translate-x-full'); }
-    mobileOpenBtn?.addEventListener('click', openMobileMenu);
-    mobileCloseBtn?.addEventListener('click', closeMobileMenu);
-
-    // Products overlay toggling
-    const productsPage=document.getElementById('products-page');
-    const productsOpeners=[document.getElementById('nav-products'),document.getElementById('mobile-products'),document.getElementById('shop-now-btn')].filter(Boolean);
-    const productsClose=document.getElementById('products-close');
-    function openProducts(){ isTransitioning=true; productsPage.classList.add('active'); renderCatalog(catalog); applyFilters(); }
-    function closeProducts(){ productsPage.classList.remove('active'); isTransitioning=false; }
-productsOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openProducts(); closeMobileMenu();}));
-    productsClose?.addEventListener('click',closeProducts);
-
-    // About overlay toggling
-    const aboutPage=document.getElementById('about-page');
-    const aboutOpeners=[document.getElementById('nav-about'),document.getElementById('mobile-about')].filter(Boolean);
-    const aboutClose=document.getElementById('about-close');
-    const aboutShopBtn=document.getElementById('about-shop-btn');
-    function openAbout(){ isTransitioning=true; aboutPage.classList.add('active'); }
-    function closeAbout(){ aboutPage.classList.remove('active'); isTransitioning=false; }
-aboutOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openAbout(); closeMobileMenu();}));
-    aboutClose?.addEventListener('click',closeAbout);
-    aboutShopBtn?.addEventListener('click',()=>{ closeAbout(); const productsLink=document.getElementById('nav-products'); productsLink?.dispatchEvent(new Event('click')); });
-
-    // Contact overlay toggling
-    const contactPage=document.getElementById('contact-page');
-    const contactOpeners=[document.getElementById('nav-contact'),document.getElementById('mobile-contact')].filter(Boolean);
-    const contactClose=document.getElementById('contact-close');
-    function openContact(){ isTransitioning=true; contactPage.classList.add('active'); }
-    function closeContact(){ contactPage.classList.remove('active'); isTransitioning=false; }
-contactOpeners.forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openContact(); closeMobileMenu();}));
-    contactClose?.addEventListener('click',closeContact);
-    document.querySelectorAll('a[href="#contact"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openContact();}));
-
-document.addEventListener('DOMContentLoaded',()=>{
-      return; // Using Spline viewer; skip local Three.js scene setup
-      const productData=[
-        { name:'Almond',   mainModel:'browncup.glb', surroundingModel:'walnuts.glb', color:'#ff3b3b', theme:{ bg:'#ffe8e6', text:'#0b0b0b', accent:'#ff3b3b', letters:'#ff0033', ctaText:'#ffffff' } },
-        { name:'Lotus',    mainModel:'lotus.glb',                surroundingModel:'petals.glb',  color:'#00c2ff', theme:{ bg:'#e6f7ff', text:'#0b0b0b', accent:'#00c2ff', letters:'#0091ff', ctaText:'#0b0b0b' } },
-        { name:'Hazelnut', mainModel:'browncup.glb', surroundingModel:'walnuts.glb', color:'#7d00ff', theme:{ bg:'#f1e6ff', text:'#0b0b0b', accent:'#7d00ff', letters:'#5a00c8', ctaText:'#ffffff' } },
-        { name:'Walnut',   mainModel:'walnut.glb',               surroundingModel:'walnuts.glb', color:'#00d26a', theme:{ bg:'#e6fff2', text:'#0b0b0b', accent:'#00d26a', letters:'#00a457', ctaText:'#0b0b0b' } },
-      ];
-
-      let currentProductIndex=0;
-      isTransitioning=false; // reset
-
-      const scene=new THREE.Scene();
-      const camera=new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-      camera.position.z=5;
-
-      const renderer=new THREE.WebGLRenderer({ antialias:true, alpha:true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.shadowMap.enabled=false;
-      document.getElementById('product-canvas-container').appendChild(renderer.domElement);
-
-      // Lighting
-      const ambientLight=new THREE.AmbientLight(0xffffff,0.7); scene.add(ambientLight);
-      const dirLight=new THREE.DirectionalLight(0xffffff,0.8); dirLight.position.set(5,10,7.5); dirLight.castShadow=false; scene.add(dirLight);
-
-      // Ground + scene offset
-      const ground=new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.MeshBasicMaterial({visible:false}));
-      ground.rotation.x=-Math.PI/2;
-      const SCENE_Y_OFFSET=-0.7; // move everything down a lot
-      ground.position.y=SCENE_Y_OFFSET;
-      scene.add(ground);
-
-      const loader=new THREE.GLTFLoader();
-      const draco=new THREE.DRACOLoader();
-      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-      draco.setDecoderConfig({ type: 'wasm' });
-      loader.setDRACOLoader(draco);
-      const loadedModels={};
-
-      let mainProductGroup=new THREE.Group();
-      let surroundingGroup=new THREE.Group();
-      mainProductGroup.position.y=SCENE_Y_OFFSET;
-      surroundingGroup.position.y=SCENE_Y_OFFSET;
-      scene.add(mainProductGroup, surroundingGroup);
-
-      function setOpacity(obj,opacity){
-        obj.traverse(child=>{ if(child.isMesh){ child.material.transparent=true; child.material.opacity=opacity; }});
-      }
-
-      function loadModel(url){
-        return new Promise((resolve)=>{
-          if(loadedModels[url]) return resolve(loadedModels[url].clone());
-          loader.load(url,(gltf)=>{
-            const model=gltf.scene;
-            model.traverse(c=>{ if(c.isMesh){ c.castShadow=false; c.receiveShadow=false; } });
-            loadedModels[url]=model; resolve(model.clone());
-          },undefined,(err)=>{
-            console.error(`Failed to load ${url}`,err);
-            resolve(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({color:0xff0000})));
-          });
-        });
-      }
-
-      function fitAndCenterObject(obj, targetHeight=1.6){ // half size (increase to make cup larger)
-        obj.updateWorldMatrix(true,true);
-        const box=new THREE.Box3().setFromObject(obj);
-        const size=box.getSize(new THREE.Vector3());
-        const center=box.getCenter(new THREE.Vector3());
-        obj.position.sub(center);
-        const h=size.y||1; const factor=targetHeight/h;
-        obj.scale.multiplyScalar(factor);
-        const box2=new THREE.Box3().setFromObject(obj);
-        obj.position.y += -box2.min.y;
-      }
-
-      function refitCameraToObject(obj, offset=2.2){ // larger offset => camera backs up => cup appears farther
-        obj.updateWorldMatrix(true,true);
-        const box=new THREE.Box3().setFromObject(obj);
-        const size=box.getSize(new THREE.Vector3());
-        const vFOV=THREE.MathUtils.degToRad(camera.fov);
-        const hFOV=2*Math.atan(Math.tan(vFOV/2)*camera.aspect);
-        const distY=(size.y/2)/Math.tan(vFOV/2);
-        const distX=(size.x/2)/Math.tan(hFOV/2);
-        const distance=Math.max(distX,distY)*offset;
-        camera.position.set(0, size.y*0.1, distance);
-        camera.near=Math.max(0.01, distance/100);
-        camera.far=distance*100;
-        camera.updateProjectionMatrix();
-      }
-
-      async function transitionTo(index){
-        if(isTransitioning) return;
-        isTransitioning=true;
-
-        const nextProduct=productData[index];
-        // Apply vivid theme per flavor
-        const rootStyle=document.documentElement.style;
-        if(nextProduct.theme){
-          rootStyle.setProperty('--bg', nextProduct.theme.bg);
-          rootStyle.setProperty('--fg', nextProduct.theme.text);
-          rootStyle.setProperty('--accent', nextProduct.theme.accent);
-          rootStyle.setProperty('--letters', nextProduct.theme.letters);
-          rootStyle.setProperty('--cta-text', nextProduct.theme.ctaText || '#ffffff');
-          const shopBtn=document.getElementById('shop-now-btn');
-          if(shopBtn){ shopBtn.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--accent'); shopBtn.style.color = getComputedStyle(document.documentElement).getPropertyValue('--cta-text'); shopBtn.style.borderColor = 'transparent'; }
-        }
-        const fadeSpeed=0.05;
-        const spinSpeed=0.2;
-
-        // keep previous groups partially visible
-        const hasPrev = mainProductGroup.children.length>0;
-        let prevMain=null, prevSurround=null;
-        if(hasPrev){
-          prevMain=mainProductGroup; prevSurround=surroundingGroup;
-          let op=1;
-          while(op>0.35){
-            op-=fadeSpeed;
-            prevMain.rotation.y+=spinSpeed;
-            setOpacity(prevMain, Math.max(0.35, op));
-            setOpacity(prevSurround, Math.max(0.35, op));
-            await new Promise(r=>setTimeout(r,16));
-          }
-          // create fresh groups for the new product
-          mainProductGroup=new THREE.Group();
-          surroundingGroup=new THREE.Group();
-          mainProductGroup.position.y=SCENE_Y_OFFSET;
-          surroundingGroup.position.y=SCENE_Y_OFFSET;
-          scene.add(mainProductGroup, surroundingGroup);
-        }
-
-        // Background word crossfade (only on switch). Otherwise, no opacity animations.
-        const bgText = document.getElementById('background-text');
-        try {
-          // fade out current word fast
-          await bgText.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-out', fill: 'forwards' }).finished;
-        } catch (_) { bgText.style.opacity = '0'; }
-        bgText.textContent = nextProduct.name;
-        bgText.style.color = getComputedStyle(document.documentElement).getPropertyValue('--letters'); // vivid, pop color
-        try {
-          // fade back in
-          await bgText.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'forwards' }).finished;
-        } catch (_) { bgText.style.opacity = '1'; }
-
-        // load + place
-        const mainModel=await loadModel(nextProduct.mainModel);
-        fitAndCenterObject(mainModel, 1.6);
-        setOpacity(mainModel,0);
-        mainProductGroup.add(mainModel);
-        refitCameraToObject(mainProductGroup, 2.2);
-
-        const surroundingTemplate=await loadModel(nextProduct.surroundingModel);
-        for(let i=0;i<10;i++){
-          const s_obj=surroundingTemplate.clone();
-          const s=0.08 + Math.random()*0.06;
-          s_obj.scale.set(s,s,s);
-          s_obj.position.set((Math.random()-0.5)*5, ((Math.random()-0.5)*2)-1.0, (Math.random()-0.5)*5);
-          s_obj.originalY=s_obj.position.y;
-          surroundingGroup.add(s_obj);
-        }
-        setOpacity(surroundingGroup,0);
-
-        // fade in new while old sits at 35%
-        let op2=0;
-        while(op2<1){
-          op2+=fadeSpeed;
-          mainProductGroup.rotation.y+=spinSpeed;
-          setOpacity(mainProductGroup, Math.min(1,op2));
-          setOpacity(surroundingGroup, Math.min(1,op2));
-          await new Promise(r=>setTimeout(r,16));
-        }
-
-        if(hasPrev && prevMain && prevSurround){ scene.remove(prevMain); scene.remove(prevSurround); }
-
-        currentProductIndex=index;
-        isTransitioning=false;
-      }
-
-      function animate(){
-        requestAnimationFrame(animate);
-        if(!isTransitioning){ mainProductGroup.rotation.y += 0.005; }
-        const time=Date.now()*0.001;
-        surroundingGroup.children.forEach(child=>{
-          child.position.y = child.originalY + Math.sin(time + child.position.x)*0.25;
-          child.rotation.x += 0.006; child.rotation.y += 0.006;
-        });
-        renderer.render(scene,camera);
-      }
-
-      document.getElementById('next-btn').addEventListener('click',()=>{ const i=(currentProductIndex+1)%productData.length; transitionTo(i); });
-      document.getElementById('prev-btn').addEventListener('click',()=>{ const i=(currentProductIndex-1+productData.length)%productData.length; transitionTo(i); });
-      window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); if(mainProductGroup.children.length){ refitCameraToObject(mainProductGroup,2.2);} });
-
-      // start warming in background (don’t block first paint)
-      warmupAssets();
-      // boot
-      transitionTo(0);
-      animate();
-      // ==== Preload / warmup for speed ====
-      function warmupAssets() {
-        const urls = Array.from(new Set([
-          ...productData.flatMap(p => [p.mainModel, p.surroundingModel]),
-          'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_decoder.wasm',
-          'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/draco_wasm_wrapper.js'
-        ]));
-        // Kick off network warms
-        urls.forEach(u => { try { fetch(u, { mode: 'no-cors' }); } catch (_) {} });
-        // Prime GLTF cache so future transitions are instant
-        urls.filter(u => u.endsWith('.glb')).forEach(u => { try { loadModel(u); } catch (_) {} });
-      }
-    });
-
-// ==== Runtime cache for speed on repeat visits ====
-if ('serviceWorker' in navigator) {
-  try {
-    const swCode = `self.addEventListener('install', e => { self.skipWaiting(); });
-self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
-self.addEventListener('fetch', event => {
-  const req = event.request;
-  const url = new URL(req.url);
-  const cachable = /\\.(glb|wasm|js|css|woff2|png|jpg|jpeg)$/.test(url.pathname) ||
-                   url.hostname.includes('fonts.gstatic.com') ||
-                   url.hostname.includes('cdn.jsdelivr.net') ||
-                   url.hostname.includes('cdnjs.cloudflare.com');
-  if (!cachable) return;
-  event.respondWith(
-    caches.open('qudra-v2').then(async cache => {
-      const hit = await cache.match(req, { ignoreSearch: true });
-      if (hit) return hit;
-      try {
-        const resp = await fetch(req);
-        // Do not cache opaque, error, or non-200 responses (prevents caching 404s like missing GLB)
-        if (!resp || resp.status !== 200) {
-          return resp;
-        }
-        cache.put(req, resp.clone());
-        return resp;
-      } catch (err) {
-        return hit || Response.error();
-      }
-    })
-  );
-});`;
-    const blob = new Blob([swCode], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(url);
-  } catch (_) { /* ignore */ }
-}
-  </script>
 </body>
 </html>
-``` 
